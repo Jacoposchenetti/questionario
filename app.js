@@ -127,8 +127,9 @@ const acStudy = new AddressAutocomplete("studyPlace",  "studyPlace-val");
 
 // ─── Step navigation ─────────────────────────────────────────────────────────
 
-const panels   = document.querySelectorAll(".step-panel");
-const stepDots = document.querySelectorAll(".step[data-step]");
+const TOTAL_STEPS = 3;
+const progressBar   = document.getElementById("progress-bar");
+const progressLabel = document.getElementById("progress-label");
 let   currentStep = 1;
 
 function showStep(n) {
@@ -137,11 +138,10 @@ function showStep(n) {
     p.hidden = !isTarget;
     p.classList.toggle("active", isTarget);
   });
-  stepDots.forEach((s) => {
-    const sn = Number(s.dataset.step);
-    s.classList.toggle("active", sn === n);
-    s.classList.toggle("done",   sn < n);
-  });
+  const pct = Math.round((n / TOTAL_STEPS) * 100);
+  progressBar.style.width = pct + "%";
+  progressBar.setAttribute("aria-valuenow", pct);
+  progressLabel.textContent = "Sezione " + n + " di " + TOTAL_STEPS;
   currentStep = n;
   window.scrollTo({ top: 0, behavior: "smooth" });
 }

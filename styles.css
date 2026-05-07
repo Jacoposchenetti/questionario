@@ -64,51 +64,28 @@ h1 {
 }
 
 /* ── Step indicator ── */
-.steps {
-  display: flex;
-  align-items: center;
+.progress-wrap {
   margin: 28px 0 0;
+  height: 6px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
   animation: fadeUp 600ms 60ms ease-out both;
 }
 
-.step {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 999px;
+  transition: width 400ms cubic-bezier(.4,0,.2,1);
 }
 
-.step-num {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--border);
+.progress-label {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
   color: var(--ink-soft);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.85rem;
-  transition: background 240ms, color 240ms;
-  flex-shrink: 0;
-}
-
-.step.active .step-num { background: var(--accent); color: #fff; }
-.step.done   .step-num { background: var(--accent-2); color: #fff; }
-
-.step-label {
-  font-size: 0.85rem;
   font-weight: 600;
-  color: var(--ink-soft);
-  transition: color 240ms;
-}
-.step.active .step-label { color: var(--accent); }
-
-.step-line {
-  flex: 1;
-  height: 2px;
-  background: var(--border);
-  margin: 0 10px;
-  min-width: 20px;
+  letter-spacing: 0.04em;
 }
 
 /* ── Card ── */
