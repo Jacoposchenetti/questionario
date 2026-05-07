@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin – Questionario</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent: #1f7a61;
+      --accent-light: #e8f4f0;
+      --ink: #1a1a1a;
+      --ink-soft: #5a6a65;
+      --border: #d4e0dc;
+      --bg: #f5f9f7;
+      --white: #ffffff;
+      --danger: #c0392b;
+    }
+
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+           background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+    /* ── Login ── */
+    #login-screen {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh;
+    }
+    .login-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 14px; padding: 40px 36px; width: 340px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    .login-card h1 { font-size: 1.3rem; margin-bottom: 24px; color: var(--accent); }
+    .login-card label { display: block; font-size: 0.85rem; font-weight: 600;
+                        color: var(--ink-soft); margin-bottom: 6px; }
+    .login-card input {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 10px 12px; font-size: 1rem; font-family: inherit; outline: none;
+      transition: border-color 200ms;
+    }
+    .login-card input:focus { border-color: var(--accent); }
+    .login-card button {
+      margin-top: 20px; width: 100%; background: var(--accent); color: #fff;
+      border: none; border-radius: 8px; padding: 12px; font-size: 1rem;
+      font-weight: 600; cursor: pointer; font-family: inherit;
+      transition: opacity 150ms;
+    }
+    .login-card button:hover { opacity: 0.88; }
+    #login-err { color: var(--danger); font-size: 0.82rem; margin-top: 10px; min-height: 18px; }
+
+    /* ── Dashboard ── */
+    #dashboard { display: none; padding: 28px 24px; }
+
+    .top-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+    }
+    .top-bar h1 { font-size: 1.4rem; color: var(--accent); }
+    .top-bar-actions { display: flex; gap: 10px; align-items: center; }
+
+    .btn { border: none; border-radius: 8px; padding: 8px 18px; font-size: 0.88rem;
+           font-weight: 600; cursor: pointer; font-family: inherit; transition: opacity 150ms; }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-outline { background: transparent; border: 1.5px solid var(--accent);
+                   color: var(--accent); }
+    .btn-danger  { background: transparent; border: 1.5px solid var(--danger);
+                   color: var(--danger); }
+
+    /* ── Stats strip ── */
+    .stats-strip {
+      display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;
+    }
+    .stat-box {
+      background: var(--white); border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px 20px; min-width: 140px;
+    }
+    .stat-box .num { font-size: 1.9rem; font-weight: 700; color: var(--accent); }
+    .stat-box .lbl { font-size: 0.75rem; color: var(--ink-soft); margin-top: 2px; }
+
+    /* ── Filter bar ── */
+    .filter-bar {
+      display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center;
+    }
+    .filter-bar input, .filter-bar select {
+      border: 1.5px solid var(--border); border-radius: 8px; padding: 7px 12px;
+      font-size: 0.85rem; font-family: inherit; outline: none;
+      transition: border-color 200ms; background: var(--white);
+    }
+    .filter-bar input:focus, .filter-bar select:focus { border-color: var(--accent); }
+    .filter-bar input { width: 220px; }
+
+    /* ── Table ── */
+    .table-wrap {
+      background: var(--white); border: 1px solid var(--border); border-radius: 12px;
+      overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    thead th {
+      background: var(--accent-light); color: var(--accent); font-weight: 700;
+      padding: 10px 14px; text-align: left; white-space: nowrap;
+      border-bottom: 1.5px solid var(--border); position: sticky; top: 0;
+    }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 100ms; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--accent-light); }
+    tbody td { padding: 9px 14px; white-space: nowrap; }
+    td.email { max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+
+    .badge {
+      display: inline-block; border-radius: 20px; padding: 2px 10px;
+      font-size: 0.72rem; font-weight: 700;
+    }
+    .badge-m { background: #dbeafe; color: #1e40af; }
+    .badge-f { background: #fce7f3; color: #9d174d; }
+    .badge-o { background: #f3f4f6; color: #4b5563; }
+
+    .score { font-weight: 700; }
+    .score-hi { color: #c0392b; }
+    .score-lo { color: #27ae60; }
+
+    /* ── Detail modal ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 100;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--white); border-radius: 14px; padding: 28px 28px 24px;
+      max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    }
+    .modal h2 { font-size: 1.1rem; margin-bottom: 16px; color: var(--accent); }
+    .modal-close { float: right; background: none; border: none; font-size: 1.3rem;
+                   cursor: pointer; color: var(--ink-soft); margin-top: -4px; }
+    .detail-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px;
+      font-size: 0.83rem; margin-bottom: 18px;
+    }
+    .detail-grid .k { font-weight: 600; color: var(--ink-soft); }
+    .detail-grid .v { color: var(--ink); }
+    .scores-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 10px;
+    }
+    .score-card {
+      background: var(--accent-light); border-radius: 8px; padding: 10px 14px;
+    }
+    .score-card .sc-label { font-size: 0.72rem; font-weight: 600; color: var(--ink-soft); }
+    .score-card .sc-val { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+
+    #status { font-size: 0.82rem; color: var(--ink-soft); }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2.5px solid var(--border);
+               border-top-color: var(--accent); border-radius: 50%;
+               animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <h1>🔒 Area Admin</h1>
+    <label for="pwd-input">Password</label>
+    <input type="password" id="pwd-input" placeholder="••••••••" autocomplete="current-password" />
+    <p id="login-err"></p>
+    <button id="btn-login">Accedi</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="top-bar">
+    <h1>📊 Dashboard Risposte</h1>
+    <div class="top-bar-actions">
+      <span id="status"></span>
+      <button class="btn btn-outline" id="btn-refresh">↻ Aggiorna</button>
+      <button class="btn btn-primary" id="btn-csv">⬇ Esporta CSV</button>
+      <button class="btn btn-danger" id="btn-logout">Esci</button>
+    </div>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat-box"><div class="num" id="stat-total">–</div><div class="lbl">Soggetti totali</div></div>
+    <div class="stat-box"><div class="num" id="stat-m">–</div><div class="lbl">Maschi</div></div>
+    <div class="stat-box"><div class="num" id="stat-f">–</div><div class="lbl">Femmine</div></div>
+    <div class="stat-box"><div class="num" id="stat-avg-age">–</div><div class="lbl">Età media</div></div>
+    <div class="stat-box"><div class="num" id="stat-avg-igrs">–</div><div class="lbl">IGRS medio</div></div>
+    <div class="stat-box"><div class="num" id="stat-avg-ecr-anx">–</div><div class="lbl">ECR Ansia media</div></div>
+    <div class="stat-box"><div class="num" id="stat-avg-ecr-avo">–</div><div class="lbl">ECR Evitamento medio</div></div>
+    <div class="stat-box"><div class="num" id="stat-avg-pbs">–</div><div class="lbl">PBS medio</div></div>
+  </div>
+
+  <div class="filter-bar">
+    <input type="search" id="search-box" placeholder="Cerca nome, cognome, email…" />
+    <select id="filter-gender">
+      <option value="">Tutti i generi</option>
+      <option value="maschio">Maschio</option>
+      <option value="femmina">Femmina</option>
+    </select>
+    <select id="filter-therapy">
+      <option value="">Terapia: tutti</option>
+      <option value="si">In terapia</option>
+      <option value="no">Non in terapia</option>
+    </select>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Data</th>
+          <th>Nome</th>
+          <th>Cognome</th>
+          <th>Email</th>
+          <th>Età</th>
+          <th>Genere</th>
+          <th>Terapia</th>
+          <th>IGRS tot.</th>
+          <th>ECR Ansia</th>
+          <th>ECR Evit.</th>
+          <th>PBS tot.</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <tr><td colspan="13" style="text-align:center;padding:32px;color:var(--ink-soft)">Caricamento…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-content">
+    <button class="modal-close" id="modal-close">✕</button>
+    <h2 id="modal-title">Dettaglio soggetto</h2>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script type="module">
+  const ADMIN_PASSWORD = "admin2024tesi";
+  const FIREBASE_API_KEY = "AIzaSyACw47qEsgsMCC2tUlbPEu81f-1ENRB0-U";
+  const FIRESTORE_BASE = "https://firestore.googleapis.com/v1/projects/questionario-9b487/databases/(default)/documents";
+
+  // ── Login ──────────────────────────────────────────────────────────────────
+  const loginScreen = document.getElementById("login-screen");
+  const dashboard   = document.getElementById("dashboard");
+  const pwdInput    = document.getElementById("pwd-input");
+  const loginErr    = document.getElementById("login-err");
+
+  document.getElementById("btn-login").addEventListener("click", tryLogin);
+  pwdInput.addEventListener("keydown", e => { if (e.key === "Enter") tryLogin(); });
+
+  function tryLogin() {
+    if (pwdInput.value === ADMIN_PASSWORD) {
+      loginScreen.style.display = "none";
+      dashboard.style.display = "block";
+      loadData();
+    } else {
+      loginErr.textContent = "Password errata.";
+      pwdInput.value = "";
+      pwdInput.focus();
+    }
+  }
+
+  document.getElementById("btn-logout").addEventListener("click", () => {
+    dashboard.style.display = "none";
+    loginScreen.style.display = "flex";
+    pwdInput.value = "";
+    loginErr.textContent = "";
+  });
+
+  // ── Fetch dati ────────────────────────────────────────────────────────────
+  let allDocs = [];
+
+  async function loadData() {
+    setStatus("loading");
+    allDocs = [];
+    try {
+      let url = `${FIRESTORE_BASE}/responses?key=${FIREBASE_API_KEY}&pageSize=300`;
+      while (url) {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        if (data.documents) allDocs.push(...data.documents);
+        url = data.nextPageToken
+          ? `${FIRESTORE_BASE}/responses?key=${FIREBASE_API_KEY}&pageSize=300&pageToken=${data.nextPageToken}`
+          : null;
+      }
+      setStatus("ok", allDocs.length + " soggetti caricati");
+      renderAll();
+    } catch(e) {
+      setStatus("err", "Errore: " + e.message);
+    }
+  }
+
+  document.getElementById("btn-refresh").addEventListener("click", loadData);
+
+  // ── Helpers Firestore ─────────────────────────────────────────────────────
+  function fval(fields, key) {
+    const f = fields?.[key];
+    if (!f) return null;
+    return f.stringValue ?? f.integerValue ?? f.doubleValue ?? f.booleanValue ?? f.nullValue ?? null;
+  }
+
+  function parseDoc(doc) {
+    const f = doc.fields ?? {};
+    const get = k => fval(f, k);
+    const getNum = k => { const v = get(k); return v !== null ? Number(v) : null; };
+
+    // IGRS totale (20 item, scala 1-5)
+    let igrsSum = 0, igrsCount = 0;
+    for (let i = 1; i <= 20; i++) {
+      const v = getNum("igrs_q" + i);
+      if (v !== null) { igrsSum += v; igrsCount++; }
+    }
+    const igrsTotal = igrsCount === 20 ? igrsSum : null;
+
+    // ECR-R: item ansia (pari) e evitamento (dispari) — scala 1-7, 18 item ciascuno
+    // Ansia: q2,q4,q6,q8,q10,q12,q14,q16,q20,q22,q24,q26,q28,q30,q32,q34,q36 + q18(R)
+    // Evitamento: q1,q3,q5,q7,q9,q11,q13,q15,q17,q19,q21,q23,q25,q27,q29,q31,q33,q35
+    // Punteggio grezzo: media degli item (invertiti dove indicato)
+    // Per semplicità usiamo la somma grezza degli item pari/dispari
+    const ecrAnxItems  = [2,4,6,8,10,12,14,16,20,22,24,26,28,30,32,34,36];
+    const ecrAvoItems  = [1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35];
+    // Item invertiti ECR-R (scored R): 3,15,19,22,25,27,29,31,33
+    const ecrReversed  = new Set([3,15,19,22,25,27,29,31,33]);
+
+    let anxSum = 0, anxCount = 0;
+    for (const i of ecrAnxItems) {
+      const v = getNum("ecr_q" + i);
+      if (v !== null) { anxSum += ecrReversed.has(i) ? (8 - v) : v; anxCount++; }
+    }
+    let avoSum = 0, avoCount = 0;
+    for (const i of ecrAvoItems) {
+      const v = getNum("ecr_q" + i);
+      if (v !== null) { avoSum += ecrReversed.has(i) ? (8 - v) : v; avoCount++; }
+    }
+    const ecrAnx = anxCount === ecrAnxItems.length ? Math.round((anxSum / anxCount) * 10) / 10 : null;
+    const ecrAvo = avoCount === ecrAvoItems.length ? Math.round((avoSum / avoCount) * 10) / 10 : null;
+
+    // PBS totale (59 item, scala 0-7)
+    let pbsSum = 0, pbsCount = 0;
+    for (let i = 1; i <= 59; i++) {
+      const v = getNum("pbs_q" + i);
+      if (v !== null) { pbsSum += v; pbsCount++; }
+    }
+    const pbsTotal = pbsCount === 59 ? pbsSum : null;
+
+    const createdAt = f.createdAt?.timestampValue ?? null;
+
+    return {
+      id: doc.name?.split("/").pop() ?? "?",
+      nome: get("nome") ?? "",
+      cognome: get("cognome") ?? "",
+      email: get("email") ?? "",
+      age: getNum("age"),
+      gender: (get("gender") ?? "").toLowerCase(),
+      education: get("education") ?? "",
+      occupation: get("occupation") ?? "",
+      therapy: get("therapy") ?? "",
+      sexualOrientation: get("sexualOrientation") ?? "",
+      birthPlace: get("birthPlace") ?? "",
+      grewUpPlace: get("grewUpPlace") ?? "",
+      relazione: get("relazione") ?? "",
+      relazioneDurata: get("relazioneDurata") ?? "",
+      convivenza: get("convivenza") ?? "",
+      igrsTotal, ecrAnx, ecrAvo, pbsTotal,
+      createdAt,
+      raw: f,
+    };
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────
+  function renderAll() {
+    const docs = filtered();
+    updateStats(docs);
+    renderTable(docs);
+  }
+
+  function filtered() {
+    const q = document.getElementById("search-box").value.toLowerCase();
+    const g = document.getElementById("filter-gender").value.toLowerCase();
+    const t = document.getElementById("filter-therapy").value.toLowerCase();
+
+    return allDocs.map(parseDoc).filter(d => {
+      if (q && !`${d.nome} ${d.cognome} ${d.email}`.toLowerCase().includes(q)) return false;
+      if (g && d.gender !== g) return false;
+      if (t && (d.therapy ?? "").toLowerCase() !== t) return false;
+      return true;
+    }).sort((a, b) => (b.createdAt ?? "") > (a.createdAt ?? "") ? 1 : -1);
+  }
+
+  function avg(arr) {
+    const nums = arr.filter(v => v !== null);
+    if (!nums.length) return "–";
+    return (nums.reduce((s, v) => s + v, 0) / nums.length).toFixed(1);
+  }
+
+  function updateStats(docs) {
+    document.getElementById("stat-total").textContent = docs.length;
+    document.getElementById("stat-m").textContent = docs.filter(d => d.gender === "maschio").length;
+    document.getElementById("stat-f").textContent = docs.filter(d => d.gender === "femmina").length;
+    document.getElementById("stat-avg-age").textContent = avg(docs.map(d => d.age));
+    document.getElementById("stat-avg-igrs").textContent = avg(docs.map(d => d.igrsTotal));
+    document.getElementById("stat-avg-ecr-anx").textContent = avg(docs.map(d => d.ecrAnx));
+    document.getElementById("stat-avg-ecr-avo").textContent = avg(docs.map(d => d.ecrAvo));
+    document.getElementById("stat-avg-pbs").textContent = avg(docs.map(d => d.pbsTotal));
+  }
+
+  function genderBadge(g) {
+    if (g === "maschio")  return `<span class="badge badge-m">M</span>`;
+    if (g === "femmina")  return `<span class="badge badge-f">F</span>`;
+    return `<span class="badge badge-o">${g || "–"}</span>`;
+  }
+
+  function scoreCell(v, max) {
+    if (v === null) return "<td>–</td>";
+    const pct = v / max;
+    const cls = pct >= 0.65 ? "score score-hi" : pct <= 0.35 ? "score score-lo" : "score";
+    return `<td class="${cls}">${v}</td>`;
+  }
+
+  function fmtDate(ts) {
+    if (!ts) return "–";
+    try { return new Date(ts).toLocaleDateString("it-IT", { day:"2-digit", month:"2-digit", year:"numeric" }); }
+    catch { return ts.slice(0,10); }
+  }
+
+  function renderTable(docs) {
+    const tbody = document.getElementById("table-body");
+    if (!docs.length) {
+      tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;padding:32px;color:var(--ink-soft)">Nessun soggetto trovato.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = docs.map((d, i) => `
+      <tr>
+        <td style="color:var(--ink-soft)">${i + 1}</td>
+        <td>${fmtDate(d.createdAt)}</td>
+        <td>${d.nome}</td>
+        <td>${d.cognome}</td>
+        <td class="email" title="${d.email}">${d.email}</td>
+        <td>${d.age ?? "–"}</td>
+        <td>${genderBadge(d.gender)}</td>
+        <td>${d.therapy || "–"}</td>
+        ${scoreCell(d.igrsTotal, 100)}
+        ${scoreCell(d.ecrAnx, 7)}
+        ${scoreCell(d.ecrAvo, 7)}
+        ${scoreCell(d.pbsTotal, 413)}
+        <td><button class="btn btn-outline" style="padding:4px 10px;font-size:0.75rem" data-id="${d.id}">Dettaglio</button></td>
+      </tr>
+    `).join("");
+
+    tbody.querySelectorAll("[data-id]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const doc = docs.find(d => d.id === btn.dataset.id);
+        if (doc) openModal(doc);
+      });
+    });
+  }
+
+  // ── Modal dettaglio ───────────────────────────────────────────────────────
+  function openModal(d) {
+    document.getElementById("modal-title").textContent =
+      `${d.nome} ${d.cognome} — ${fmtDate(d.createdAt)}`;
+
+    document.getElementById("modal-body").innerHTML = `
+      <div class="detail-grid">
+        <span class="k">Email</span>       <span class="v">${d.email || "–"}</span>
+        <span class="k">Età</span>          <span class="v">${d.age ?? "–"}</span>
+        <span class="k">Genere</span>       <span class="v">${d.gender || "–"}</span>
+        <span class="k">Istruzione</span>   <span class="v">${d.education || "–"}</span>
+        <span class="k">Occupazione</span>  <span class="v">${d.occupation || "–"}</span>
+        <span class="k">Nato/a a</span>     <span class="v">${d.birthPlace || "–"}</span>
+        <span class="k">Cresciuto/a a</span><span class="v">${d.grewUpPlace || "–"}</span>
+        <span class="k">Terapia</span>      <span class="v">${d.therapy || "–"}</span>
+        <span class="k">Orient. sessuale</span><span class="v">${d.sexualOrientation || "–"}</span>
+        <span class="k">Relazione stabile</span><span class="v">${d.relazione || "–"}</span>
+        ${d.relazione === "si" ? `
+        <span class="k">Durata relazione</span><span class="v">${d.relazioneDurata || "–"}</span>
+        <span class="k">Convivenza</span>   <span class="v">${d.convivenza || "–"}</span>` : ""}
+      </div>
+      <h3 style="font-size:0.88rem;color:var(--ink-soft);margin-bottom:10px;margin-top:4px">PUNTEGGI</h3>
+      <div class="scores-grid">
+        <div class="score-card">
+          <div class="sc-label">IGRS totale<br><small style="font-weight:400">(range 20–100)</small></div>
+          <div class="sc-val">${d.igrsTotal ?? "–"}</div>
+        </div>
+        <div class="score-card">
+          <div class="sc-label">ECR Ansia (media)<br><small style="font-weight:400">(range 1–7)</small></div>
+          <div class="sc-val">${d.ecrAnx ?? "–"}</div>
+        </div>
+        <div class="score-card">
+          <div class="sc-label">ECR Evitamento (media)<br><small style="font-weight:400">(range 1–7)</small></div>
+          <div class="sc-val">${d.ecrAvo ?? "–"}</div>
+        </div>
+        <div class="score-card">
+          <div class="sc-label">PBS totale<br><small style="font-weight:400">(range 0–413)</small></div>
+          <div class="sc-val">${d.pbsTotal ?? "–"}</div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById("modal-overlay").classList.add("open");
+  }
+
+  document.getElementById("modal-close").addEventListener("click", () => {
+    document.getElementById("modal-overlay").classList.remove("open");
+  });
+  document.getElementById("modal-overlay").addEventListener("click", e => {
+    if (e.target === e.currentTarget)
+      document.getElementById("modal-overlay").classList.remove("open");
+  });
+
+  // ── Filtri ────────────────────────────────────────────────────────────────
+  ["search-box", "filter-gender", "filter-therapy"].forEach(id => {
+    document.getElementById(id).addEventListener("input", renderAll);
+  });
+
+  // ── Export CSV ────────────────────────────────────────────────────────────
+  document.getElementById("btn-csv").addEventListener("click", () => {
+    const docs = filtered();
+    if (!docs.length) return;
+
+    // intestazioni
+    const demoCols = ["id","createdAt","nome","cognome","email","age","gender",
+                      "education","occupation","birthPlace","grewUpPlace",
+                      "therapy","sexualOrientation","relazione","relazioneDurata","convivenza"];
+    const igrsCols = Array.from({length:20}, (_, i) => "igrs_q"+(i+1));
+    const ecrCols  = Array.from({length:36}, (_, i) => "ecr_q"+(i+1));
+    const pbsCols  = Array.from({length:59}, (_, i) => "pbs_q"+(i+1));
+    const scoreCols = ["igrsTotal","ecrAnx","ecrAvo","pbsTotal"];
+    const allCols  = [...demoCols, ...scoreCols, ...igrsCols, ...ecrCols, ...pbsCols];
+
+    const esc = v => {
+      if (v === null || v === undefined) return "";
+      const s = String(v);
+      return s.includes(",") || s.includes('"') || s.includes("\n")
+        ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+
+    const rows = [allCols.join(",")];
+    for (const d of docs) {
+      const row = allCols.map(col => {
+        if (col.startsWith("igrs_q") || col.startsWith("ecr_q") || col.startsWith("pbs_q")) {
+          return esc(fval(d.raw, col));
+        }
+        return esc(d[col] ?? "");
+      });
+      rows.push(row.join(","));
+    }
+
+    const blob = new Blob(["\uFEFF" + rows.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "risposte_questionario.csv"; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // ── Status helper ─────────────────────────────────────────────────────────
+  function setStatus(type, msg) {
+    const el = document.getElementById("status");
+    if (type === "loading") {
+      el.innerHTML = `<span class="spinner"></span> Caricamento…`;
+    } else if (type === "ok") {
+      el.textContent = msg;
+    } else {
+      el.textContent = msg;
+      el.style.color = "var(--danger)";
+    }
+  }
+</script>
+</body>
+</html>
