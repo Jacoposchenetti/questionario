@@ -1,19 +1,12 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="it">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Questionario Tesi - Dati Demografici</title>
-    <meta
-      name="description"
-      content="Raccolta iniziale di informazioni demografiche per la partecipazione a un questionario di tesi."
-    />
+    <title>Questionario Tesi — Dati Demografici</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Fraunces:opsz,wght@9..144,700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Fraunces:opsz,wght@9..144,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -24,24 +17,34 @@
       <header class="hero">
         <p class="eyebrow">Studio universitario</p>
         <h1>Questionario tesi</h1>
-        <p class="subtitle">
-          Prima di iniziare, compila questi dati demografici. Le informazioni vengono salvate in forma
-          pseudonimizzata su database Firebase.
-        </p>
+        <p class="subtitle">Compila i dati demografici in tre brevi sezioni. Le informazioni sono trattate in forma pseudonimizzata su database Firebase.</p>
       </header>
 
-      <section class="card" aria-labelledby="demo-form-title">
-        <h2 id="demo-form-title">Profilo partecipante</h2>
+      <nav class="steps" aria-label="Progresso compilazione">
+        <div class="step active" data-step="1"><span class="step-num">1</span><span class="step-label">Dati personali</span></div>
+        <div class="step-line"></div>
+        <div class="step" data-step="2"><span class="step-num">2</span><span class="step-label">Origini</span></div>
+        <div class="step-line"></div>
+        <div class="step" data-step="3"><span class="step-num">3</span><span class="step-label">Psicologia</span></div>
+      </nav>
 
-        <form id="demographic-form" novalidate>
+      <form id="main-form" novalidate>
+
+        <!-- STEP 1 -->
+        <section class="card step-panel active" data-panel="1" aria-labelledby="s1-title">
+          <h2 id="s1-title">Dati personali</h2>
           <div class="field-grid">
-            <label class="field">
-              <span>Età</span>
-              <input type="number" id="age" name="age" min="18" max="99" required />
-            </label>
 
-            <label class="field">
-              <span>Genere</span>
+            <label class="field"><span>Nome</span>
+              <input type="text" id="nome" name="nome" required maxlength="80" /></label>
+
+            <label class="field"><span>Cognome</span>
+              <input type="text" id="cognome" name="cognome" required maxlength="80" /></label>
+
+            <label class="field"><span>Età</span>
+              <input type="number" id="age" name="age" min="18" max="99" required /></label>
+
+            <label class="field"><span>Genere</span>
               <select id="gender" name="gender" required>
                 <option value="">Seleziona</option>
                 <option value="femmina">Femmina</option>
@@ -49,49 +52,176 @@
                 <option value="non-binary">Non-binary</option>
                 <option value="preferisco-non-rispondere">Preferisco non rispondere</option>
                 <option value="altro">Altro</option>
-              </select>
-            </label>
+              </select></label>
 
-            <label class="field">
-              <span>Titolo di studio</span>
+            <label class="field col-2">
+              <span>Titolo di studio <em>(il livello che stai frequentando o l'ultimo conseguito)</em></span>
               <select id="education" name="education" required>
                 <option value="">Seleziona</option>
-                <option value="scuola-media">Scuola media</option>
-                <option value="diploma">Diploma</option>
-                <option value="laurea-triennale">Laurea triennale</option>
-                <option value="laurea-magistrale">Laurea magistrale</option>
-                <option value="dottorato">Dottorato</option>
+                <optgroup label="Istruzione di base">
+                  <option value="scuola-media">Licenza media</option>
+                  <option value="diploma">Diploma superiore</option>
+                </optgroup>
+                <optgroup label="Laurea triennale">
+                  <option value="triennale-1">Triennale — 1° anno</option>
+                  <option value="triennale-2">Triennale — 2° anno</option>
+                  <option value="triennale-3">Triennale — 3° anno</option>
+                  <option value="triennale-fc">Triennale — fuori corso</option>
+                  <option value="triennale-conseguita">Triennale conseguita</option>
+                </optgroup>
+                <optgroup label="Laurea magistrale / ciclo unico">
+                  <option value="magistrale-1">Magistrale — 1° anno</option>
+                  <option value="magistrale-2">Magistrale — 2° anno</option>
+                  <option value="magistrale-fc">Magistrale — fuori corso</option>
+                  <option value="ciclounico-1">Ciclo unico — 1° anno</option>
+                  <option value="ciclounico-2">Ciclo unico — 2° anno</option>
+                  <option value="ciclounico-3">Ciclo unico — 3° anno</option>
+                  <option value="ciclounico-4">Ciclo unico — 4° anno</option>
+                  <option value="ciclounico-5">Ciclo unico — 5° anno</option>
+                  <option value="ciclounico-6">Ciclo unico — 6° anno</option>
+                  <option value="ciclounico-fc">Ciclo unico — fuori corso</option>
+                  <option value="magistrale-conseguita">Magistrale / ciclo unico conseguita</option>
+                </optgroup>
+                <optgroup label="Post-laurea">
+                  <option value="dottorato">Dottorato</option>
+                  <option value="specializzazione">Specializzazione</option>
+                  <option value="master">Master</option>
+                </optgroup>
                 <option value="altro">Altro</option>
-              </select>
-            </label>
+              </select></label>
 
-            <label class="field">
-              <span>Occupazione</span>
-              <input type="text" id="occupation" name="occupation" required maxlength="100" />
-            </label>
+            <label class="field col-2"><span>Occupazione</span>
+              <select id="occupation" name="occupation" required>
+                <option value="">Seleziona</option>
+                <option value="studente">Studente</option>
+                <option value="studente-lavoratore">Studente lavoratore</option>
+                <option value="lavoratore">Lavoratore</option>
+              </select></label>
 
-            <label class="field">
-              <span>Paese di residenza</span>
-              <input type="text" id="country" name="country" required maxlength="80" />
-            </label>
           </div>
 
           <label class="consent">
             <input type="checkbox" id="consent" name="consent" required />
-            <span>
-              Acconsento all'uso dei miei dati per finalita di ricerca accademica, secondo informativa privacy.
-            </span>
+            <span>Acconsento all'uso dei miei dati per finalità di ricerca accademica, secondo l'informativa privacy.</span>
           </label>
 
+          <p class="step-error" id="err-1" aria-live="assertive"></p>
           <div class="actions">
-            <button id="submit-btn" type="submit">Salva e continua</button>
+            <button type="button" id="btn-next-1">Avanti →</button>
+          </div>
+        </section>
+
+        <!-- STEP 2 -->
+        <section class="card step-panel" data-panel="2" aria-labelledby="s2-title" hidden>
+          <h2 id="s2-title">Origini e formazione</h2>
+          <div class="field-grid">
+
+            <div class="field col-2 ac-wrap">
+              <span>Dove sei nato/a? <em>(città o paese)</em></span>
+              <input type="text" id="birthPlace" autocomplete="off" placeholder="Inizia a scrivere..." />
+              <input type="hidden" id="birthPlace-val" />
+            </div>
+
+            <div class="field col-2 ac-wrap">
+              <span>Dove sei cresciuto/a? <em>(città o paese)</em></span>
+              <input type="text" id="grewUpPlace" autocomplete="off" placeholder="Inizia a scrivere..." />
+              <input type="hidden" id="grewUpPlace-val" />
+            </div>
+
+          </div>
+
+          <div id="student-fields" hidden>
+            <hr />
+            <h3>Informazioni sugli studi</h3>
+            <div class="field-grid">
+
+              <div class="field col-2 ac-wrap">
+                <span>Dove studi? <em>(città, università)</em></span>
+                <input type="text" id="studyPlace" autocomplete="off" placeholder="Inizia a scrivere..." />
+                <input type="hidden" id="studyPlace-val" />
+              </div>
+
+              <label class="field col-2"><span>Cosa studi?</span>
+                <input type="text" id="studyField" name="studyField" maxlength="120" placeholder="es. Psicologia clinica" /></label>
+
+              <label class="field"><span>Anno di studi</span>
+                <select id="studyYear" name="studyYear">
+                  <option value="">Seleziona</option>
+                  <option value="1">1° anno</option>
+                  <option value="2">2° anno</option>
+                  <option value="3">3° anno</option>
+                  <option value="4">4° anno</option>
+                  <option value="5">5° anno</option>
+                  <option value="6">6° anno</option>
+                  <option value="fc">Fuori corso</option>
+                </select></label>
+
+            </div>
+          </div>
+
+          <p class="step-error" id="err-2" aria-live="assertive"></p>
+          <div class="actions">
+            <div class="nav-row">
+              <button type="button" id="btn-back-2" class="btn-secondary">← Indietro</button>
+              <button type="button" id="btn-next-2">Avanti →</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 3 -->
+        <section class="card step-panel" data-panel="3" aria-labelledby="s3-title" hidden>
+          <h2 id="s3-title">Psicologia</h2>
+          <div class="field-stack">
+
+            <fieldset class="radio-group">
+              <legend>Sei mai stato/a in terapia psicologica?</legend>
+              <label class="radio-label"><input type="radio" name="hadTherapy" value="si" /> Sì</label>
+              <label class="radio-label"><input type="radio" name="hadTherapy" value="no" /> No</label>
+            </fieldset>
+
+            <div id="therapy-duration-wrap" hidden>
+              <label class="field">
+                <span>Per quanto tempo complessivamente?</span>
+                <select id="therapyDuration" name="therapyDuration">
+                  <option value="">Seleziona</option>
+                  <option value="lt6m">Meno di 6 mesi</option>
+                  <option value="6m-1y">6 mesi – 1 anno</option>
+                  <option value="1y-2y">1 – 2 anni</option>
+                  <option value="2y-3y">2 – 3 anni</option>
+                  <option value="gt3y">Più di 3 anni</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="field">
+              <span>Orientamento sessuale</span>
+              <select id="sexualOrientation" name="sexualOrientation" required>
+                <option value="">Seleziona</option>
+                <option value="eterosessuale">Eterosessuale</option>
+                <option value="omosessuale">Omosessuale / Gay / Lesbica</option>
+                <option value="bisessuale">Bisessuale</option>
+                <option value="pansessuale">Pansessuale</option>
+                <option value="asessuale">Asessuale</option>
+                <option value="preferisco-non-rispondere">Preferisco non rispondere</option>
+                <option value="altro">Altro</option>
+              </select>
+            </label>
+
+          </div>
+
+          <p class="step-error" id="err-3" aria-live="assertive"></p>
+          <div class="actions">
+            <div class="nav-row">
+              <button type="button" id="btn-back-3" class="btn-secondary">← Indietro</button>
+              <button type="submit" id="submit-btn">Salva e invia</button>
+            </div>
             <p id="status" class="status" role="status" aria-live="polite"></p>
           </div>
-        </form>
-      </section>
+        </section>
+
+      </form>
     </main>
 
-    <script type="module" src="firebase-config.js"></script>
     <script type="module" src="app.js"></script>
   </body>
 </html>
