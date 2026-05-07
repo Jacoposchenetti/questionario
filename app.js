@@ -201,10 +201,11 @@ function validateStep1() {
 function validateStep2() {
   if (!acBirth || !acBirth.isValid()) return "Seleziona il luogo di nascita dalla lista.";
   if (!acGrew  || !acGrew.isValid())  return "Seleziona il luogo dove sei cresciuto/a dalla lista.";
+  if (!val("motherEducation")) return "Seleziona il titolo di studio della madre.";
+  if (!val("fatherEducation")) return "Seleziona il titolo di studio del padre.";
   if (isStudent()) {
     if (!acStudy || !acStudy.isValid()) return "Seleziona il luogo dove studi dalla lista.";
     if (!val("studyField")) return "Inserisci il corso di studi.";
-    if (!val("studyYear"))  return "Seleziona l\u2019anno di studi.";
   }
   return null;
 }
@@ -267,6 +268,8 @@ document.getElementById("main-form").addEventListener("submit", async (e) => {
     occupation:        val("occupation"),
     birthPlace:        acBirth ? acBirth.getValue() : null,
     grewUpPlace:       acGrew  ? acGrew.getValue()  : null,
+    motherEducation:   val("motherEducation"),
+    fatherEducation:   val("fatherEducation"),
     hadTherapy:        therapy === "si",
     therapyDuration:   therapy === "si" ? val("therapyDuration") : null,
     sexualOrientation: val("sexualOrientation"),
@@ -277,7 +280,6 @@ document.getElementById("main-form").addEventListener("submit", async (e) => {
   if (isStudent()) {
     payload.studyPlace = acStudy ? acStudy.getValue() : null;
     payload.studyField = val("studyField");
-    payload.studyYear  = val("studyYear");
   }
 
   try {
