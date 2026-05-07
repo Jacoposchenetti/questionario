@@ -1,13 +1,4 @@
-// Salva su Firestore via REST API — unico salvataggio finale con tutti i dati
-const FIREBASE_API_KEY = "AIzaSyACw47qEsgsMCC2tUlbPEu81f-1ENRB0-U";
-const FINAL_URL = "https://firestore.googleapis.com/v1/projects/questionario-9b487/databases/(default)/documents/responses?key=" + FIREBASE_API_KEY;
-
-function toFSVal(v) {
-  if (v === null || v === undefined) return { nullValue: null };
-  if (typeof v === "boolean") return { booleanValue: v };
-  if (typeof v === "number") return { integerValue: String(v) };
-  return { stringValue: String(v) };
-}
+// Dati ECR-R salvati in sessionStorage; il salvataggio su Firestore avviene alla fine del PBS.
 
 const QUESTIONS = [
   "Preferisco non mostrare al partner come mi sento dentro.",
@@ -177,61 +168,28 @@ document.getElementById("btn-submit").addEventListener("click", () => {
   submitAll();
 });
 
-// --- Salvataggio finale ---
+// --- Salvataggio in sessionStorage e redirect a PBS ---
 
 async function submitAll() {
   const submitBtn = document.getElementById("btn-submit");
   submitBtn.disabled = true;
-  submitBtn.textContent = "Salvataggio...";
+  submitBtn.textContent = "Caricamento...";
 
-  const demographics = JSON.parse(sessionStorage.getItem("demographicsData") ?? "{}");
-  const igrsData     = JSON.parse(sessionStorage.getItem("igrsData") ?? "{}");
-
-  const fields = {};
-
-  // Dati demografici
-  for (const [k, v] of Object.entries(demographics)) fields[k] = toFSVal(v);
-
-  // Risposte IGRS
-  for (const [k, v] of Object.entries(igrsData)) fields[k] = toFSVal(v);
+  const ecrData = {};
 
   // Risposte ECR-R
-  answers.forEach((ans, i) => { fields["ecr_q" + (i + 1)] = toFSVal(ans); });
+  answers.forEach((ans, i) => { ecrData["ecr_q" + (i + 1)] = ans; });
 
   // Dati relazione
   const relazioneVal = document.querySelector("input[name='relazione']:checked").value;
-  fields["ecr_relazione"] = toFSVal(relazioneVal);
+  ecrData["ecr_relazione"] = relazioneVal;
   if (relazioneVal === "si") {
-    fields["ecr_relazione_durata"] = toFSVal(document.getElementById("relazione-durata").value.trim());
-    const conv = document.querySelector("input[name='convivenza']:checked")?.value ?? null;
-    fields["ecr_convivenza"] = toFSVal(conv);
+    ecrData["ecr_relazione_durata"] = document.getElementById("relazione-durata").value.trim();
+    ecrData["ecr_convivenza"] = document.querySelector("input[name='convivenza']:checked")?.value ?? null;
   }
 
-  fields["createdAt"] = { timestampValue: new Date().toISOString() };
-
-  try {
-    const res = await fetch(FINAL_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fields }),
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err?.error?.message ?? "HTTP " + res.status);
-    }
-    sessionStorage.removeItem("demographicsData");
-    sessionStorage.removeItem("igrsData");
-    document.querySelector(".page").innerHTML = `
-      <div class="card" style="text-align:center;padding:56px 32px;animation:fadeUp 600ms ease-out both">
-        <p style="font-size:2.8rem;margin:0">&#x2713;</p>
-        <h2 style="margin:14px 0 8px">Grazie per la partecipazione!</h2>
-        <p style="color:var(--ink-soft)">Le tue risposte sono state salvate correttamente.</p>
-      </div>`;
-  } catch(e) {
-    errRelEl.textContent = "Errore durante il salvataggio: " + e.message;
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Avanti \u2192";
-  }
+  sessionStorage.setItem("ecrData", JSON.stringify(ecrData));
+  window.location.href = "pbs.html";
 }
 
 renderQuestion(0);

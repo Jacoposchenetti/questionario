@@ -437,6 +437,16 @@ button:disabled { opacity: 0.65; cursor: not-allowed; }
 }
 .scale-legend--ecr .scale-legend-spacer { flex: 1; }
 
+/* ── PBS: 8-point Likert (0–7) ── */
+.likert-row--8 { gap: 4px; }
+.likert-row--8 .likert-circle {
+  width: 44px;
+  height: 44px;
+  font-size: 1rem;
+}
+.scale-legend--pbs { justify-content: space-between; }
+.scale-legend--pbs .scale-legend-item { flex: 0 0 auto; }
+
 /* ── Mobile ── */
 @media (max-width: 600px) {
   .page { margin-top: 24px; }
@@ -449,5 +459,6 @@ button:disabled { opacity: 0.65; cursor: not-allowed; }
   .stepper-conn { margin-top: 11px; }
   .likert-circle { width: 44px; height: 44px; font-size: 1.1rem; }
   .likert-row--7 .likert-circle { width: 36px; height: 36px; font-size: 0.85rem; }
+  .likert-row--8 .likert-circle { width: 32px; height: 32px; font-size: 0.8rem; }
   .scale-lbl { font-size: 0.62rem; }
 }
