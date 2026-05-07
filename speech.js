@@ -15,12 +15,12 @@ function getGender() {
   catch { return ""; }
 }
 function getVoiceId() {
-  return getGender() === "Maschio" ? ELEVENLABS_VOICE_MALE : ELEVENLABS_VOICE_FEMALE;
+  return getGender().toLowerCase() === "maschio" ? ELEVENLABS_VOICE_MALE : ELEVENLABS_VOICE_FEMALE;
 }
 
 // Avatar URL in base al genere (DiceBear Personas)
 export function getAvatarUrl() {
-  return getGender() === "Maschio"
+  return getGender().toLowerCase() === "maschio"
     ? "https://api.dicebear.com/9.x/personas/svg?seed=marco&size=128"
     : "https://api.dicebear.com/9.x/personas/svg?seed=giulia&size=128";
 }
