@@ -1,5 +1,5 @@
 // Salva su Firestore via REST API — unico salvataggio finale con tutti i dati
-import { speakText, stopSpeech, setAvatarCallback, isVoiceEnabled, setVoiceEnabled } from './speech.js';
+import { speakText, stopSpeech, setAvatarCallback, isVoiceEnabled, setVoiceEnabled, getAvatarUrl } from './speech.js';
 const FIREBASE_API_KEY = "AIzaSyACw47qEsgsMCC2tUlbPEu81f-1ENRB0-U";
 const FINAL_URL = "https://firestore.googleapis.com/v1/projects/questionario-9b487/databases/(default)/documents/responses?key=" + FIREBASE_API_KEY;
 
@@ -89,8 +89,12 @@ const backBtn      = document.getElementById("btn-back");
 const timerEl      = document.getElementById("timer");
 const errEl        = document.getElementById("err");
 const avatarWrap   = document.getElementById("avatar-wrap");
+const avatarImg    = document.getElementById("avatar");
 const btnReplay    = document.getElementById("btn-replay");
 const btnVoice     = document.getElementById("btn-voice-toggle");
+
+// Imposta avatar in base al genere
+avatarImg.src = getAvatarUrl();
 
 function syncVoiceBtn() {
   btnVoice.textContent = isVoiceEnabled() ? '\u{1F508}' : '\u{1F507}';

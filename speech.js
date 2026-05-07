@@ -5,8 +5,25 @@
 // ─── ElevenLabs ─────────────────────────────────────────────────────────────
 // Incolla qui la tua API key ElevenLabs. Se vuota, si usa Web Speech API.
 const ELEVENLABS_KEY = "sk_c1a219c4c38cc34877378b2973c5e3ec24c779293fc72830";
-// Voice ID: "Aria" multilingua, suona bene in italiano. Puoi cambiarlo.
-const ELEVENLABS_VOICE_ID = "9BWtsMINqrJLrRacOk9x";
+// Voci per genere: maschio e femmina/altro
+const ELEVENLABS_VOICE_MALE   = "4YsN90HrCPrOCmBglwMA";
+const ELEVENLABS_VOICE_FEMALE  = "BZc8d1MPTdZkyGbE9Sin";
+
+// Legge il genere da sessionStorage per scegliere voce e avatar
+function getGender() {
+  try { return JSON.parse(sessionStorage.getItem("demographicsData") || "{}").gender || ""; }
+  catch { return ""; }
+}
+function getVoiceId() {
+  return getGender() === "Maschio" ? ELEVENLABS_VOICE_MALE : ELEVENLABS_VOICE_FEMALE;
+}
+
+// Avatar URL in base al genere (DiceBear Personas)
+export function getAvatarUrl() {
+  return getGender() === "Maschio"
+    ? "https://api.dicebear.com/9.x/personas/svg?seed=marco&size=128"
+    : "https://api.dicebear.com/9.x/personas/svg?seed=giulia&size=128";
+}
 
 // ─── Stato condiviso ─────────────────────────────────────────────────────────
 let avatarCallback = null;
@@ -72,7 +89,7 @@ async function speakWithElevenLabs(text) {
   avatarCallback?.(true);
   try {
     const res = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${getVoiceId()}`,
       {
         method: "POST",
         headers: {

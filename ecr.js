@@ -1,5 +1,5 @@
 // Dati ECR-R salvati in sessionStorage; il salvataggio su Firestore avviene alla fine del PBS.
-import { speakText, stopSpeech, setAvatarCallback, isVoiceEnabled, setVoiceEnabled } from './speech.js';
+import { speakText, stopSpeech, setAvatarCallback, isVoiceEnabled, setVoiceEnabled, getAvatarUrl } from './speech.js';
 
 const QUESTIONS = [
   "Preferisco non mostrare al partner come mi sento dentro.",
@@ -61,8 +61,12 @@ const relationSection = document.getElementById("relation-section");
 const relazioneDetails = document.getElementById("relazione-details");
 const errRelEl        = document.getElementById("err-rel");
 const avatarWrap   = document.getElementById("avatar-wrap");
+const avatarImg    = document.getElementById("avatar");
 const btnReplay    = document.getElementById("btn-replay");
 const btnVoice     = document.getElementById("btn-voice-toggle");
+
+// Imposta avatar in base al genere
+avatarImg.src = getAvatarUrl();
 
 function syncVoiceBtn() {
   btnVoice.textContent = isVoiceEnabled() ? '\u{1F508}' : '\u{1F507}';

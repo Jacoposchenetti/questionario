@@ -1,5 +1,5 @@
 ﻿// Dati IGRS salvati in sessionStorage; il salvataggio su Firestore avviene alla fine dell'ECR-R.
-import { speakText, stopSpeech, setAvatarCallback, isVoiceEnabled, setVoiceEnabled } from './speech.js';
+import { speakText, stopSpeech, setAvatarCallback, isVoiceEnabled, setVoiceEnabled, getAvatarUrl } from './speech.js';
 
 const QUESTIONS = [
   "Credo che se gli altri mi conoscessero realmente non vorrebbero avere nulla a che fare con me",
@@ -41,8 +41,12 @@ const backBtn      = document.getElementById("btn-back");
 const timerEl      = document.getElementById("timer");
 const errEl        = document.getElementById("err");
 const avatarWrap   = document.getElementById("avatar-wrap");
+const avatarImg    = document.getElementById("avatar");
 const btnReplay    = document.getElementById("btn-replay");
 const btnVoice     = document.getElementById("btn-voice-toggle");
+
+// Imposta avatar in base al genere
+avatarImg.src = getAvatarUrl();
 
 // Sincronizza icona toggle voce
 function syncVoiceBtn() {
