@@ -428,6 +428,15 @@ button:disabled { opacity: 0.65; cursor: not-allowed; }
   min-width: 8ch;
 }
 
+/* ── ECR-R: 7-point Likert ── */
+.likert-row--7 { gap: 6px; }
+.likert-row--7 .likert-circle {
+  width: 46px;
+  height: 46px;
+  font-size: 1rem;
+}
+.scale-legend--ecr .scale-legend-spacer { flex: 1; }
+
 /* ── Mobile ── */
 @media (max-width: 600px) {
   .page { margin-top: 24px; }
@@ -439,5 +448,6 @@ button:disabled { opacity: 0.65; cursor: not-allowed; }
   .stepper-dot { width: 24px; height: 24px; font-size: 0.65rem; }
   .stepper-conn { margin-top: 11px; }
   .likert-circle { width: 44px; height: 44px; font-size: 1.1rem; }
+  .likert-row--7 .likert-circle { width: 36px; height: 36px; font-size: 0.85rem; }
   .scale-lbl { font-size: 0.62rem; }
 }

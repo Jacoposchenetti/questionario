@@ -1,13 +1,4 @@
-﻿// Salva su Firestore via REST API — unico salvataggio finale con tutti i dati
-const FIREBASE_API_KEY = "AIzaSyACw47qEsgsMCC2tUlbPEu81f-1ENRB0-U";
-const FINAL_URL = "https://firestore.googleapis.com/v1/projects/questionario-9b487/databases/(default)/documents/responses?key=" + FIREBASE_API_KEY;
-
-function toFSVal(v) {
-  if (v === null || v === undefined) return { nullValue: null };
-  if (typeof v === "boolean") return { booleanValue: v };
-  if (typeof v === "number") return { integerValue: String(v) };
-  return { stringValue: String(v) };
-}
+﻿// Dati IGRS salvati in sessionStorage; il salvataggio su Firestore avviene alla fine dell'ECR-R.
 
 const QUESTIONS = [
   "Credo che se gli altri mi conoscessero realmente non vorrebbero avere nulla a che fare con me",
@@ -37,7 +28,7 @@ let currentQ = 0;
 const answers = new Array(QUESTIONS.length).fill(null);
 let timerInterval = null;
 let timerDone = false;
-let maxReached = 0; // indice massimo raggiunto — non si ripete il timer se torniamo indietro
+let maxReached = -1; // indice massimo raggiunto; -1 = nessuna domanda ancora vista
 
 const progressBar  = document.getElementById("progress-bar");
 const progressLabel = document.getElementById("progress-label");
@@ -124,51 +115,12 @@ nextBtn.addEventListener("click", () => {
   }
 });
 
-async function submitAll() {
+function submitAll() {
   clearInterval(timerInterval);
-  nextBtn.disabled = true;
-  nextBtn.textContent = "Salvataggio...";
-
-  // Carica i dati demografici salvati in sessionStorage
-  const demographics = JSON.parse(sessionStorage.getItem("demographicsData") ?? "{}");
-
-  // Costruisce il documento Firestore unificato
-  const fields = {};
-
-  // Dati demografici
-  for (const [k, v] of Object.entries(demographics)) {
-    fields[k] = toFSVal(v);
-  }
-
-  // Risposte IGRS (prefisso igrs_)
-  answers.forEach((ans, i) => {
-    fields["igrs_q" + (i + 1)] = { integerValue: String(ans) };
-  });
-
-  fields.createdAt = { timestampValue: new Date().toISOString() };
-
-  try {
-    const res = await fetch(FINAL_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fields }),
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err?.error?.message ?? "HTTP " + res.status);
-    }
-    sessionStorage.removeItem("demographicsData");
-    document.querySelector(".page").innerHTML = `
-      <div class="card" style="text-align:center;padding:56px 32px;animation:fadeUp 600ms ease-out both">
-        <p style="font-size:2.8rem;margin:0">&#x2713;</p>
-        <h2 style="margin:14px 0 8px">Grazie per la partecipazione!</h2>
-        <p style="color:var(--ink-soft)">Le tue risposte sono state salvate correttamente.</p>
-      </div>`;
-  } catch(e) {
-    errEl.textContent = "Errore durante il salvataggio: " + e.message;
-    nextBtn.disabled = false;
-    nextBtn.textContent = "Invia risposte";
-  }
+  const igrsData = {};
+  answers.forEach((ans, i) => { igrsData["igrs_q" + (i + 1)] = ans; });
+  sessionStorage.setItem("igrsData", JSON.stringify(igrsData));
+  window.location.href = "ecr.html";
 }
 
 renderQuestion(0);

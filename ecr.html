@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Questionario tesi — ECR-R</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Fraunces:opsz,wght@9..144,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-glow bg-glow-a" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-b" aria-hidden="true"></div>
+
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow">Studio universitario</p>
+      <h1>Questionario tesi</h1>
+      <p class="subtitle">Le seguenti affermazioni si riferiscono a come ti senti nelle relazioni sentimentali. Indica quanto sei in disaccordo o in accordo con ogni affermazione.</p>
+    </header>
+
+    <nav class="stepper" aria-label="Fasi del questionario">
+      <div class="stepper-step done">
+        <div class="stepper-dot">✓</div>
+        <span class="stepper-lbl">Dati demografici</span>
+      </div>
+      <div class="stepper-conn done"></div>
+      <div class="stepper-step done">
+        <div class="stepper-dot">✓</div>
+        <span class="stepper-lbl">IGRS</span>
+      </div>
+      <div class="stepper-conn done"></div>
+      <div class="stepper-step active">
+        <div class="stepper-dot">3</div>
+        <span class="stepper-lbl">ECR-R</span>
+      </div>
+      <div class="stepper-conn"></div>
+      <div class="stepper-step">
+        <div class="stepper-dot">4</div>
+        <span class="stepper-lbl">PBS</span>
+      </div>
+    </nav>
+
+    <div class="progress-wrap" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+      <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+    </div>
+    <p class="progress-label" id="progress-label">Domanda 1 di 36</p>
+
+    <div class="card">
+
+      <!-- SEZIONE DOMANDE -->
+      <div id="question-section">
+
+        <div class="scale-legend scale-legend--ecr" aria-label="Legenda scala">
+          <div class="scale-legend-item">
+            <span class="scale-num">1</span>
+            <span class="scale-lbl">Forte<br>disaccordo</span>
+          </div>
+          <div class="scale-legend-item scale-legend-spacer"></div>
+          <div class="scale-legend-item scale-legend-spacer"></div>
+          <div class="scale-legend-item">
+            <span class="scale-num">4</span>
+            <span class="scale-lbl">Neutrale /<br>Misto</span>
+          </div>
+          <div class="scale-legend-item scale-legend-spacer"></div>
+          <div class="scale-legend-item scale-legend-spacer"></div>
+          <div class="scale-legend-item">
+            <span class="scale-num">7</span>
+            <span class="scale-lbl">Forte<br>accordo</span>
+          </div>
+        </div>
+
+        <div class="question-wrap">
+          <p class="question-num-label">Domanda <span id="question-num">1</span> di 36</p>
+          <p class="question-text" id="question-text"></p>
+        </div>
+
+        <div class="likert-row likert-row--7" role="radiogroup" aria-label="Valutazione">
+          <label class="likert-item"><input type="radio" name="answer" value="1" /><span class="likert-circle">1</span></label>
+          <label class="likert-item"><input type="radio" name="answer" value="2" /><span class="likert-circle">2</span></label>
+          <label class="likert-item"><input type="radio" name="answer" value="3" /><span class="likert-circle">3</span></label>
+          <label class="likert-item"><input type="radio" name="answer" value="4" /><span class="likert-circle">4</span></label>
+          <label class="likert-item"><input type="radio" name="answer" value="5" /><span class="likert-circle">5</span></label>
+          <label class="likert-item"><input type="radio" name="answer" value="6" /><span class="likert-circle">6</span></label>
+          <label class="likert-item"><input type="radio" name="answer" value="7" /><span class="likert-circle">7</span></label>
+        </div>
+
+        <p class="step-error" id="err" aria-live="assertive"></p>
+        <div class="actions">
+          <div class="nav-row" style="align-items:center;gap:16px">
+            <button type="button" id="btn-back" class="btn-secondary">← Indietro</button>
+            <button type="button" id="btn-next" disabled>Avanti →</button>
+            <span class="timer-badge" id="timer" aria-live="polite"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEZIONE RELAZIONE (dopo le 36 domande) -->
+      <div id="relation-section" hidden>
+        <h2 style="margin-top:0;margin-bottom:20px">La tua relazione attuale</h2>
+        <div class="field-stack">
+
+          <fieldset class="radio-group">
+            <legend>Attualmente hai una relazione stabile con un partner sentimentale?</legend>
+            <label class="radio-label"><input type="radio" name="relazione" value="no" /> No</label>
+            <label class="radio-label"><input type="radio" name="relazione" value="si" /> Sì</label>
+          </fieldset>
+
+          <div id="relazione-details" hidden>
+            <div class="field-stack" style="margin-top:16px">
+              <label class="field">
+                <span>Da quanto tempo dura la relazione?</span>
+                <input type="text" id="relazione-durata" maxlength="80" placeholder="es. 2 anni" />
+              </label>
+              <fieldset class="radio-group" style="margin-top:8px">
+                <legend>Convivi con il partner?</legend>
+                <label class="radio-label"><input type="radio" name="convivenza" value="no" /> No</label>
+                <label class="radio-label"><input type="radio" name="convivenza" value="si" /> Sì</label>
+              </fieldset>
+            </div>
+          </div>
+
+        </div>
+        <p class="step-error" id="err-rel" aria-live="assertive"></p>
+        <div class="actions">
+          <div class="nav-row">
+            <button type="button" id="btn-back-rel" class="btn-secondary">← Indietro</button>
+            <button type="button" id="btn-submit">Avanti →</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script type="module" src="ecr.js"></script>
+</body>
+</html>
