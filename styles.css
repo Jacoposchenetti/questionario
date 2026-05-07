@@ -63,14 +63,72 @@ h1 {
   max-width: 66ch;
 }
 
-/* ── Step indicator ── */
-.progress-wrap {
+/* ── Global stepper ── */
+.stepper {
+  display: flex;
+  align-items: flex-start;
   margin: 28px 0 0;
+  animation: fadeUp 600ms 60ms ease-out both;
+}
+.stepper-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+}
+.stepper-conn {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  margin-top: 13px;
+  transition: background 400ms ease;
+}
+.stepper-conn.done { background: var(--accent); }
+.stepper-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  transition: all 300ms ease;
+  flex-shrink: 0;
+}
+.stepper-step.active .stepper-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+  box-shadow: 0 0 0 4px rgba(31,122,97,0.15);
+}
+.stepper-step.done .stepper-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+.stepper-lbl {
+  margin-top: 6px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-align: center;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.stepper-step.active .stepper-lbl,
+.stepper-step.done .stepper-lbl { color: var(--accent); }
+
+/* ── Sub-progress (within each phase) ── */
+.progress-wrap {
+  margin: 14px 0 0;
   height: 6px;
   background: var(--border);
   border-radius: 999px;
   overflow: hidden;
-  animation: fadeUp 600ms 60ms ease-out both;
 }
 
 .progress-bar {
@@ -81,8 +139,8 @@ h1 {
 }
 
 .progress-label {
-  margin: 8px 0 0;
-  font-size: 0.8rem;
+  margin: 6px 0 0;
+  font-size: 0.78rem;
   color: var(--ink-soft);
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -377,6 +435,9 @@ button:disabled { opacity: 0.65; cursor: not-allowed; }
   .field-grid { grid-template-columns: 1fr; }
   .col-2 { grid-column: 1; }
   .step-label { display: none; }
+  .stepper-lbl { display: none; }
+  .stepper-dot { width: 24px; height: 24px; font-size: 0.65rem; }
+  .stepper-conn { margin-top: 11px; }
   .likert-circle { width: 44px; height: 44px; font-size: 1.1rem; }
   .scale-lbl { font-size: 0.62rem; }
 }

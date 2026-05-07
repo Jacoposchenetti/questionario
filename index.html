@@ -20,7 +20,28 @@
         <p class="subtitle">Compila i dati demografici in tre brevi sezioni. Le informazioni sono trattate in forma pseudonimizzata su database Firebase.</p>
       </header>
 
-      <div class="progress-wrap" aria-label="Progresso compilazione" role="progressbar" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100">
+      <nav class="stepper" aria-label="Fasi del questionario">
+        <div class="stepper-step active">
+          <div class="stepper-dot">1</div>
+          <span class="stepper-lbl">Dati demografici</span>
+        </div>
+        <div class="stepper-conn"></div>
+        <div class="stepper-step">
+          <div class="stepper-dot">2</div>
+          <span class="stepper-lbl">IGRS</span>
+        </div>
+        <div class="stepper-conn"></div>
+        <div class="stepper-step">
+          <div class="stepper-dot">3</div>
+          <span class="stepper-lbl">ECR-R</span>
+        </div>
+        <div class="stepper-conn"></div>
+        <div class="stepper-step">
+          <div class="stepper-dot">4</div>
+          <span class="stepper-lbl">PBS</span>
+        </div>
+      </nav>
+      <div class="progress-wrap" role="progressbar" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar" id="progress-bar" style="width:33%"></div>
       </div>
       <p class="progress-label" id="progress-label">Sezione 1 di 3</p>
