@@ -180,13 +180,9 @@ document.getElementById("main-form").addEventListener("submit", async (e) => {
   }
 
   try {
-    await saveDoc(payload);
-    document.querySelector(".page").innerHTML = `
-      <div class="card" style="text-align:center;padding:56px 32px;animation:fadeUp 600ms ease-out both">
-        <p style="font-size:2.8rem;margin:0">&#x2713;</p>
-        <h2 style="margin:14px 0 8px">Grazie per la partecipazione!</h2>
-        <p style="color:var(--ink-soft)">I tuoi dati sono stati salvati correttamente.</p>
-      </div>`;
+    const saved = await saveDoc(payload);
+    const docId = saved?.name?.split("/").pop() ?? "";
+    window.location.href = "igrs.html?id=" + encodeURIComponent(docId);
   } catch (error) {
     console.error("Firestore error:", error);
     const code = error?.code ?? "";

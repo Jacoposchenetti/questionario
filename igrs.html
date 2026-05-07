@@ -1,0 +1,79 @@
+﻿<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Questionario tesi — IGRS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Fraunces:opsz,wght@9..144,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-glow bg-glow-a" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-b" aria-hidden="true"></div>
+
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow">Studio universitario</p>
+      <h1>Questionario tesi</h1>
+      <p class="subtitle">Leggi attentamente ogni affermazione e indica quanto ti rappresenta, da 1 a 5.</p>
+    </header>
+
+    <div class="progress-wrap" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+      <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+    </div>
+    <p class="progress-label" id="progress-label">Domanda 1 di 20</p>
+
+    <div class="card">
+
+      <div class="scale-legend" aria-label="Legenda scala">
+        <div class="scale-legend-item">
+          <span class="scale-num">1</span>
+          <span class="scale-lbl">Per nulla<br>Rappresentativo</span>
+        </div>
+        <div class="scale-legend-item">
+          <span class="scale-num">2</span>
+          <span class="scale-lbl">Poco<br>Rappresentativo</span>
+        </div>
+        <div class="scale-legend-item">
+          <span class="scale-num">3</span>
+          <span class="scale-lbl">Abbastanza<br>Rappresentativo</span>
+        </div>
+        <div class="scale-legend-item">
+          <span class="scale-num">4</span>
+          <span class="scale-lbl">Molto<br>Rappresentativo</span>
+        </div>
+        <div class="scale-legend-item">
+          <span class="scale-num">5</span>
+          <span class="scale-lbl">Assolutamente<br>Rappresentativo</span>
+        </div>
+      </div>
+
+      <div class="question-wrap">
+        <p class="question-num-label">Domanda <span id="question-num">1</span> di 20</p>
+        <p class="question-text" id="question-text"></p>
+      </div>
+
+      <div class="likert-row" role="radiogroup" aria-label="Valutazione">
+        <label class="likert-item"><input type="radio" name="answer" value="1" /><span class="likert-circle">1</span></label>
+        <label class="likert-item"><input type="radio" name="answer" value="2" /><span class="likert-circle">2</span></label>
+        <label class="likert-item"><input type="radio" name="answer" value="3" /><span class="likert-circle">3</span></label>
+        <label class="likert-item"><input type="radio" name="answer" value="4" /><span class="likert-circle">4</span></label>
+        <label class="likert-item"><input type="radio" name="answer" value="5" /><span class="likert-circle">5</span></label>
+      </div>
+
+      <p class="step-error" id="err" aria-live="assertive"></p>
+      <div class="actions">
+        <div class="nav-row" style="align-items:center;gap:16px">
+          <button type="button" id="btn-next" disabled>Avanti</button>
+          <span class="timer-badge" id="timer" aria-live="polite"></span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script type="module" src="igrs.js"></script>
+</body>
+</html>
