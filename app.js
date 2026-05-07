@@ -1,14 +1,28 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-import {
-  getFirestore,
-  addDoc,
-  collection,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
-import { firebaseConfig } from "./firebase-config.js";
+// Firebase è caricato dinamicamente solo al momento dell'invio
+// così i bottoni di navigazione funzionano sempre, anche se il CDN è lento.
 
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+let _db = null;
+
+async function getDb() {
+  if (_db) return _db;
+  const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js");
+  const { getFirestore }  = await import("https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js");
+  const { firebaseConfig } = await import("./firebase-config.js");
+  const app = initializeApp(firebaseConfig);
+  _db = getFirestore(app);
+  return _db;
+}
+
+async function saveDoc(payload) {
+  const { addDoc, collection, serverTimestamp } =
+    await import("https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js");
+  const db = await getDb();
+  await addDoc(collection(db, "demographics"), {
+    ...payload,
+    createdAt: serverTimestamp(),
+    source: "github-pages",
+  });
+}
 
 // ─── Nominatim address autocomplete ─────────────────────────────────────────
 
@@ -256,7 +270,7 @@ document.getElementById("main-form").addEventListener("submit", async (e) => {
   }
 
   try {
-    await addDoc(collection(db, "demographics"), payload);
+    await saveDoc(payload);
     document.querySelector(".page").innerHTML = `
       <div class="card" style="text-align:center;padding:56px 32px;animation:fadeUp 600ms ease-out both">
         <p style="font-size:2.8rem;margin:0">&#x2713;</p>
