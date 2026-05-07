@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Questionario Tesi - Dati Demografici</title>
+    <meta
+      name="description"
+      content="Raccolta iniziale di informazioni demografiche per la partecipazione a un questionario di tesi."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Fraunces:opsz,wght@9..144,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-glow bg-glow-a" aria-hidden="true"></div>
+    <div class="bg-glow bg-glow-b" aria-hidden="true"></div>
+
+    <main class="page">
+      <header class="hero">
+        <p class="eyebrow">Studio universitario</p>
+        <h1>Questionario tesi</h1>
+        <p class="subtitle">
+          Prima di iniziare, compila questi dati demografici. Le informazioni vengono salvate in forma
+          pseudonimizzata su database Firebase.
+        </p>
+      </header>
+
+      <section class="card" aria-labelledby="demo-form-title">
+        <h2 id="demo-form-title">Profilo partecipante</h2>
+
+        <form id="demographic-form" novalidate>
+          <div class="field-grid">
+            <label class="field">
+              <span>Età</span>
+              <input type="number" id="age" name="age" min="18" max="99" required />
+            </label>
+
+            <label class="field">
+              <span>Genere</span>
+              <select id="gender" name="gender" required>
+                <option value="">Seleziona</option>
+                <option value="femmina">Femmina</option>
+                <option value="maschio">Maschio</option>
+                <option value="non-binary">Non-binary</option>
+                <option value="preferisco-non-rispondere">Preferisco non rispondere</option>
+                <option value="altro">Altro</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Titolo di studio</span>
+              <select id="education" name="education" required>
+                <option value="">Seleziona</option>
+                <option value="scuola-media">Scuola media</option>
+                <option value="diploma">Diploma</option>
+                <option value="laurea-triennale">Laurea triennale</option>
+                <option value="laurea-magistrale">Laurea magistrale</option>
+                <option value="dottorato">Dottorato</option>
+                <option value="altro">Altro</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Occupazione</span>
+              <input type="text" id="occupation" name="occupation" required maxlength="100" />
+            </label>
+
+            <label class="field">
+              <span>Paese di residenza</span>
+              <input type="text" id="country" name="country" required maxlength="80" />
+            </label>
+          </div>
+
+          <label class="consent">
+            <input type="checkbox" id="consent" name="consent" required />
+            <span>
+              Acconsento all'uso dei miei dati per finalita di ricerca accademica, secondo informativa privacy.
+            </span>
+          </label>
+
+          <div class="actions">
+            <button id="submit-btn" type="submit">Salva e continua</button>
+            <p id="status" class="status" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
