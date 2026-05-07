@@ -113,17 +113,11 @@
           <h2 id="s2-title">Origini e formazione</h2>
           <div class="field-grid">
 
-            <div class="field col-2 ac-wrap">
-              <span>Dove sei nato/a? <em>(città o paese)</em></span>
-              <input type="text" id="birthPlace" autocomplete="off" placeholder="Inizia a scrivere..." />
-              <input type="hidden" id="birthPlace-val" />
-            </div>
+            <label class="field col-2"><span>Dove sei nato/a? <em>(città o paese)</em></span>
+              <input type="text" id="birthPlace" name="birthPlace" maxlength="120" placeholder="es. Roma, Italia" /></label>
 
-            <div class="field col-2 ac-wrap">
-              <span>Dove sei cresciuto/a? <em>(città o paese)</em></span>
-              <input type="text" id="grewUpPlace" autocomplete="off" placeholder="Inizia a scrivere..." />
-              <input type="hidden" id="grewUpPlace-val" />
-            </div>
+            <label class="field col-2"><span>Dove sei cresciuto/a? <em>(città o paese)</em></span>
+              <input type="text" id="grewUpPlace" name="grewUpPlace" maxlength="120" placeholder="es. Milano, Italia" /></label>
 
             <label class="field col-2"><span>Titolo di studio della madre</span>
               <select id="motherEducation" name="motherEducation" required>
@@ -158,11 +152,8 @@
             <h3>Informazioni sugli studi</h3>
             <div class="field-grid">
 
-              <div class="field col-2 ac-wrap">
-                <span>Dove studi? <em>(città, università)</em></span>
-                <input type="text" id="studyPlace" autocomplete="off" placeholder="Inizia a scrivere..." />
-                <input type="hidden" id="studyPlace-val" />
-              </div>
+              <label class="field col-2"><span>Dove studi? <em>(città, università)</em></span>
+                <input type="text" id="studyPlace" name="studyPlace" maxlength="120" placeholder="es. Trento, Università di Trento" /></label>
 
               <label class="field col-2"><span>Cosa studi?</span>
                 <input type="text" id="studyField" name="studyField" maxlength="120" placeholder="es. Psicologia clinica" /></label>

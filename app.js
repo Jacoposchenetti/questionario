@@ -1,4 +1,4 @@
-// Firebase è caricato dinamicamente solo al momento dell'invio
+﻿// Firebase è caricato dinamicamente solo al momento dell'invio
 // così i bottoni di navigazione funzionano sempre, anche se il CDN è lento.
 
 let _db = null;
@@ -20,129 +20,10 @@ async function saveDoc(payload) {
   await addDoc(collection(db, "demographics"), {
     ...payload,
     createdAt: serverTimestamp(),
-    source: "github-pages",
   });
 }
 
-// ─── Nominatim address autocomplete ─────────────────────────────────────────
-
-class AddressAutocomplete {
-  constructor(inputId, hiddenId) {
-    this.input  = document.getElementById(inputId);
-    this.hidden = document.getElementById(hiddenId);
-    this.timer  = null;
-    this.lastQuery = "";
-
-    if (!this.input || !this.hidden) return; // elemento non ancora nel DOM
-
-    const wrap = this.input.closest(".ac-wrap");
-    if (!wrap) return;
-    this.dropdown = document.createElement("ul");
-    this.dropdown.className = "ac-dropdown";
-    this.dropdown.setAttribute("role", "listbox");
-    this.dropdown.hidden = true;
-    wrap.appendChild(this.dropdown);
-
-    this.input.addEventListener("input",   () => this._onInput());
-    this.input.addEventListener("keydown", (e) => this._onKey(e));
-    document.addEventListener("click", (e) => {
-      if (!wrap.contains(e.target)) this._close();
-    });
-  }
-
-  _onInput() {
-    const q = this.input.value.trim();
-    this.hidden.value = "";
-    clearTimeout(this.timer);
-    if (q.length < 3 || q === this.lastQuery) { this._close(); return; }
-    this.timer = setTimeout(() => this._fetch(q), 380);
-  }
-
-  async _fetch(q) {
-    this.lastQuery = q;
-    try {
-      const url =
-        "https://nominatim.openstreetmap.org/search?format=json&limit=6&accept-language=it&q=" +
-        encodeURIComponent(q);
-      const res = await fetch(url, { headers: { "Accept-Language": "it" } });
-      if (!res.ok) return;
-      const data = await res.json();
-      this._render(data);
-    } catch { /* network error — silent */ }
-  }
-
-  _render(results) {
-    this.dropdown.innerHTML = "";
-    if (!results.length) { this._close(); return; }
-    results.forEach((r) => {
-      const li = document.createElement("li");
-      li.textContent = r.display_name;
-      li.setAttribute("role", "option");
-      li.addEventListener("mousedown", (e) => { e.preventDefault(); this._pick(r); });
-      this.dropdown.appendChild(li);
-    });
-    this.dropdown.hidden = false;
-  }
-
-  _pick(r) {
-    this.input.value  = r.display_name;
-    this.lastQuery    = r.display_name;
-    this.hidden.value = JSON.stringify({ display: r.display_name, lat: r.lat, lon: r.lon });
-    this._close();
-  }
-
-  _close() {
-    this.dropdown.innerHTML = "";
-    this.dropdown.hidden = true;
-  }
-
-  _focused() { return this.dropdown.querySelector("li.focused"); }
-
-  _onKey(e) {
-    const items = [...this.dropdown.querySelectorAll("li")];
-    if (!items.length) return;
-    const idx = items.indexOf(this._focused());
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      items.forEach((i) => i.classList.remove("focused"));
-      items[(idx + 1) % items.length].classList.add("focused");
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      items.forEach((i) => i.classList.remove("focused"));
-      items[(idx - 1 + items.length) % items.length].classList.add("focused");
-    } else if (e.key === "Enter") {
-      const f = this._focused();
-      if (f) { e.preventDefault(); f.dispatchEvent(new MouseEvent("mousedown")); }
-    } else if (e.key === "Escape") {
-      this._close();
-    }
-  }
-
-  // Se l'utente ha digitato testo senza scegliere dalla lista, accetta il testo
-  acceptTyped() {
-    if (!this.hidden.value && this.input.value.trim()) {
-      this.hidden.value = JSON.stringify({ display: this.input.value.trim(), lat: null, lon: null });
-    }
-  }
-
-  isValid()  { return !!this.hidden.value; }
-  getValue() { return this.hidden.value ? JSON.parse(this.hidden.value) : null; }
-}
-
-// ─── Autocomplete instances (lazy: create when step 2 first opens) ──────────
-
-let acBirth = null;
-let acGrew  = null;
-let acStudy = null;
-
-function initAutocomplete() {
-  if (acBirth) return; // already initialised
-  acBirth = new AddressAutocomplete("birthPlace",  "birthPlace-val");
-  acGrew  = new AddressAutocomplete("grewUpPlace", "grewUpPlace-val");
-  acStudy = new AddressAutocomplete("studyPlace",  "studyPlace-val");
-}
-
-// ─── Step navigation ─────────────────────────────────────────────────────────
+// --- Step navigation ---------------------------------------------------------
 
 const TOTAL_STEPS   = 3;
 const panels        = document.querySelectorAll(".step-panel");
@@ -160,12 +41,11 @@ function showStep(n) {
   progressBar.style.width = pct + "%";
   progressBar.setAttribute("aria-valuenow", pct);
   progressLabel.textContent = "Sezione " + n + " di " + TOTAL_STEPS;
-  if (n === 2) initAutocomplete();
   currentStep = n;
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// ─── Conditional fields ──────────────────────────────────────────────────────
+// --- Conditional fields ------------------------------------------------------
 
 const occupationSel       = document.getElementById("occupation");
 const studentFields       = document.getElementById("student-fields");
@@ -185,7 +65,7 @@ document.querySelectorAll("[name='hadTherapy']").forEach((r) => {
   });
 });
 
-// ─── Validation ──────────────────────────────────────────────────────────────
+// --- Validation --------------------------------------------------------------
 
 function val(id) { return (document.getElementById(id)?.value ?? "").trim(); }
 
@@ -206,12 +86,12 @@ function validateStep1() {
 }
 
 function validateStep2() {
-  if (!acBirth || !acBirth.isValid()) return "Seleziona il luogo di nascita dalla lista.";
-  if (!acGrew  || !acGrew.isValid())  return "Seleziona il luogo dove sei cresciuto/a dalla lista.";
+  if (!val("birthPlace"))      return "Inserisci il luogo di nascita.";
+  if (!val("grewUpPlace"))     return "Inserisci il luogo dove sei cresciuto/a.";
   if (!val("motherEducation")) return "Seleziona il titolo di studio della madre.";
   if (!val("fatherEducation")) return "Seleziona il titolo di studio del padre.";
   if (isStudent()) {
-    if (!acStudy || !acStudy.isValid()) return "Seleziona il luogo dove studi dalla lista.";
+    if (!val("studyPlace")) return "Inserisci il luogo dove studi.";
     if (!val("studyField")) return "Inserisci il corso di studi.";
   }
   return null;
@@ -226,7 +106,7 @@ function validateStep3() {
   return null;
 }
 
-// ─── Button listeners ────────────────────────────────────────────────────────
+// --- Button listeners --------------------------------------------------------
 
 document.getElementById("btn-next-1").addEventListener("click", () => {
   const err = validateStep1();
@@ -238,9 +118,6 @@ document.getElementById("btn-next-1").addEventListener("click", () => {
 document.getElementById("btn-back-2").addEventListener("click", () => showStep(1));
 
 document.getElementById("btn-next-2").addEventListener("click", () => {
-  acBirth?.acceptTyped();
-  acGrew?.acceptTyped();
-  acStudy?.acceptTyped();
   const err = validateStep2();
   if (err) { showErr("err-2", err); return; }
   clearErr("err-2");
@@ -249,7 +126,7 @@ document.getElementById("btn-next-2").addEventListener("click", () => {
 
 document.getElementById("btn-back-3").addEventListener("click", () => showStep(2));
 
-// ─── Submit ──────────────────────────────────────────────────────────────────
+// --- Submit ------------------------------------------------------------------
 
 function setStatus(msg, type = "") {
   const el = document.getElementById("status");
@@ -276,8 +153,8 @@ document.getElementById("main-form").addEventListener("submit", async (e) => {
     gender:            val("gender"),
     education:         val("education"),
     occupation:        val("occupation"),
-    birthPlace:        acBirth ? acBirth.getValue() : null,
-    grewUpPlace:       acGrew  ? acGrew.getValue()  : null,
+    birthPlace:        val("birthPlace"),
+    grewUpPlace:       val("grewUpPlace"),
     motherEducation:   val("motherEducation"),
     fatherEducation:   val("fatherEducation"),
     hadTherapy:        therapy === "si",
@@ -288,16 +165,12 @@ document.getElementById("main-form").addEventListener("submit", async (e) => {
   };
 
   if (isStudent()) {
-    payload.studyPlace = acStudy ? acStudy.getValue() : null;
+    payload.studyPlace = val("studyPlace");
     payload.studyField = val("studyField");
   }
 
-  const timeout = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error("Timeout: nessuna risposta da Firebase dopo 15 secondi.")), 15000)
-  );
-
   try {
-    await Promise.race([saveDoc(payload), timeout]);
+    await saveDoc(payload);
     document.querySelector(".page").innerHTML = `
       <div class="card" style="text-align:center;padding:56px 32px;animation:fadeUp 600ms ease-out both">
         <p style="font-size:2.8rem;margin:0">&#x2713;</p>
@@ -306,7 +179,11 @@ document.getElementById("main-form").addEventListener("submit", async (e) => {
       </div>`;
   } catch (error) {
     console.error("Firestore error:", error);
-    const msg = error?.code ? `Errore Firebase: ${error.code}` : error.message;
+    const code = error?.code ?? "";
+    let msg = "Errore durante il salvataggio.";
+    if (code === "permission-denied") msg = "Firestore: permessi negati. Controlla le regole del database.";
+    else if (code) msg = "Errore Firebase: " + code;
+    else if (error.message) msg = error.message;
     setStatus(msg, "error");
     submitBtn.disabled = false;
   }
