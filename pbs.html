@@ -85,6 +85,20 @@
       </div>
 
       <div class="question-wrap">
+        <div id="avatar-wrap">
+          <div id="avatar-container">
+            <svg id="avatar" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="50" cy="50" r="44" fill="var(--accent)" />
+              <circle cx="35" cy="42" r="6" fill="white" />
+              <circle cx="65" cy="42" r="6" fill="white" />
+              <circle cx="37" cy="43" r="3" fill="#0b3d3e" />
+              <circle cx="67" cy="43" r="3" fill="#0b3d3e" />
+              <ellipse id="avatar-mouth" cx="50" cy="64" rx="11" ry="4" fill="white" />
+            </svg>
+            <button id="btn-voice-toggle" aria-label="Attiva/disattiva voce" title="Attiva/disattiva voce">&#x1F508;</button>
+          </div>
+          <button id="btn-replay" aria-label="Rileggi domanda">&#x1F508; Rileggi</button>
+        </div>
         <p class="question-num-label">Domanda <span id="question-num">1</span> di 59</p>
         <p style="margin:0 0 6px;font-size:0.88rem;color:var(--ink-soft);font-weight:600">Sento/credo che:</p>
         <p class="question-text" id="question-text"></p>

@@ -447,6 +447,73 @@ button:disabled { opacity: 0.65; cursor: not-allowed; }
 .scale-legend--pbs { justify-content: space-between; }
 .scale-legend--pbs .scale-legend-item { flex: 0 0 auto; }
 
+/* ── Avatar parlante ── */
+#avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+#avatar-container {
+  position: relative;
+  display: inline-block;
+}
+
+#avatar {
+  width: 90px;
+  height: 90px;
+  filter: drop-shadow(0 4px 12px rgba(31,122,97,0.3));
+  transition: transform 200ms ease;
+}
+
+.avatar-speaking #avatar { transform: scale(1.04); }
+
+@keyframes mouthPulse {
+  0%, 100% { ry: 2px; }
+  50%       { ry: 9px; }
+}
+
+.avatar-speaking #avatar-mouth {
+  animation: mouthPulse 280ms ease-in-out infinite;
+}
+
+#btn-voice-toggle {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: white;
+  font-size: 0.72rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  font-family: inherit;
+}
+#btn-voice-toggle:hover { background: #eef6f2; }
+
+#btn-replay {
+  background: transparent;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 150ms, color 150ms;
+  line-height: 1.5;
+}
+#btn-replay:hover { background: var(--accent); color: white; }
+
 /* ── Mobile ── */
 @media (max-width: 600px) {
   .page { margin-top: 24px; }

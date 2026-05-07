@@ -1,4 +1,5 @@
 // Salva su Firestore via REST API — unico salvataggio finale con tutti i dati
+import { speakText, stopSpeech, setAvatarCallback, isVoiceEnabled, setVoiceEnabled } from './speech.js';
 const FIREBASE_API_KEY = "AIzaSyACw47qEsgsMCC2tUlbPEu81f-1ENRB0-U";
 const FINAL_URL = "https://firestore.googleapis.com/v1/projects/questionario-9b487/databases/(default)/documents/responses?key=" + FIREBASE_API_KEY;
 
@@ -87,6 +88,21 @@ const nextBtn      = document.getElementById("btn-next");
 const backBtn      = document.getElementById("btn-back");
 const timerEl      = document.getElementById("timer");
 const errEl        = document.getElementById("err");
+const avatarWrap   = document.getElementById("avatar-wrap");
+const btnReplay    = document.getElementById("btn-replay");
+const btnVoice     = document.getElementById("btn-voice-toggle");
+
+function syncVoiceBtn() {
+  btnVoice.textContent = isVoiceEnabled() ? '\u{1F508}' : '\u{1F507}';
+}
+syncVoiceBtn();
+
+setAvatarCallback(speaking => {
+  avatarWrap.classList.toggle("avatar-speaking", speaking);
+});
+
+btnReplay.addEventListener("click", () => speakText("Sento, credo che: " + QUESTIONS[currentQ]));
+btnVoice.addEventListener("click", () => { setVoiceEnabled(!isVoiceEnabled()); syncVoiceBtn(); });
 
 function renderQuestion(n) {
   const pct = Math.round((n / QUESTIONS.length) * 100);
@@ -95,6 +111,7 @@ function renderQuestion(n) {
   progressLabel.textContent = "Domanda " + (n + 1) + " di " + QUESTIONS.length;
   questionNum.textContent = n + 1;
   questionText.textContent = QUESTIONS[n];
+  speakText("Sento, credo che: " + QUESTIONS[n]);
   radios.forEach(r => { r.checked = answers[n] !== null && Number(r.value) === answers[n]; });
   errEl.textContent = "";
   backBtn.hidden = (n === 0);

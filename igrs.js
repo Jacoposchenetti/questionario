@@ -1,4 +1,5 @@
 ﻿// Dati IGRS salvati in sessionStorage; il salvataggio su Firestore avviene alla fine dell'ECR-R.
+import { speakText, stopSpeech, setAvatarCallback, isVoiceEnabled, setVoiceEnabled } from './speech.js';
 
 const QUESTIONS = [
   "Credo che se gli altri mi conoscessero realmente non vorrebbero avere nulla a che fare con me",
@@ -39,6 +40,23 @@ const nextBtn      = document.getElementById("btn-next");
 const backBtn      = document.getElementById("btn-back");
 const timerEl      = document.getElementById("timer");
 const errEl        = document.getElementById("err");
+const avatarWrap   = document.getElementById("avatar-wrap");
+const btnReplay    = document.getElementById("btn-replay");
+const btnVoice     = document.getElementById("btn-voice-toggle");
+
+// Sincronizza icona toggle voce
+function syncVoiceBtn() {
+  btnVoice.textContent = isVoiceEnabled() ? '\u{1F508}' : '\u{1F507}';
+}
+syncVoiceBtn();
+
+// Callback animazione bocca avatar
+setAvatarCallback(speaking => {
+  avatarWrap.classList.toggle("avatar-speaking", speaking);
+});
+
+btnReplay.addEventListener("click", () => speakText(QUESTIONS[currentQ]));
+btnVoice.addEventListener("click", () => { setVoiceEnabled(!isVoiceEnabled()); syncVoiceBtn(); });
 
 function renderQuestion(n) {
   const pct = Math.round((n / QUESTIONS.length) * 100);
@@ -47,6 +65,7 @@ function renderQuestion(n) {
   progressLabel.textContent = "Domanda " + (n + 1) + " di " + QUESTIONS.length;
   questionNum.textContent = n + 1;
   questionText.textContent = QUESTIONS[n];
+  speakText(QUESTIONS[n]);
   radios.forEach(r => { r.checked = answers[n] !== null && Number(r.value) === answers[n]; });
   errEl.textContent = "";
   backBtn.hidden = (n === 0);
