@@ -452,8 +452,8 @@ button:disabled { opacity: 0.65; cursor: not-allowed; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 6px;
+  margin-bottom: 12px;
 }
 
 #avatar-container {
@@ -462,9 +462,9 @@ button:disabled { opacity: 0.65; cursor: not-allowed; }
 }
 
 #avatar {
-  width: 90px;
-  height: 90px;
-  filter: drop-shadow(0 4px 12px rgba(31,122,97,0.3));
+  width: 68px;
+  height: 68px;
+  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.18));
   transition: transform 200ms ease;
 }
 
