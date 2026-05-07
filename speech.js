@@ -4,7 +4,7 @@
 
 // ─── ElevenLabs ─────────────────────────────────────────────────────────────
 // Incolla qui la tua API key ElevenLabs. Se vuota, si usa Web Speech API.
-const ELEVENLABS_KEY = "";
+const ELEVENLABS_KEY = "sk_c1a219c4c38cc34877378b2973c5e3ec24c779293fc72830";
 // Voice ID: "Aria" multilingua, suona bene in italiano. Puoi cambiarlo.
 const ELEVENLABS_VOICE_ID = "9BWtsMINqrJLrRacOk9x";
 
