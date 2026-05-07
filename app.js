@@ -137,10 +137,11 @@ function initAutocomplete() {
 
 // ─── Step navigation ─────────────────────────────────────────────────────────
 
-const TOTAL_STEPS = 3;
+const TOTAL_STEPS   = 3;
+const panels        = document.querySelectorAll(".step-panel");
 const progressBar   = document.getElementById("progress-bar");
 const progressLabel = document.getElementById("progress-label");
-let   currentStep = 1;
+let   currentStep   = 1;
 
 function showStep(n) {
   panels.forEach((p) => {
