@@ -1,5 +1,4 @@
 // Dati ECR-R salvati in sessionStorage; il salvataggio su Firestore avviene alla fine del PBS.
-import { speakText, stopSpeech, setAvatarCallback, isVoiceEnabled, setVoiceEnabled, getAvatarUrl } from './speech.js';
 
 const QUESTIONS = [
   "Preferisco non mostrare al partner come mi sento dentro.",
@@ -60,25 +59,6 @@ const questionSection = document.getElementById("question-section");
 const relationSection = document.getElementById("relation-section");
 const relazioneDetails = document.getElementById("relazione-details");
 const errRelEl        = document.getElementById("err-rel");
-const avatarWrap   = document.getElementById("avatar-wrap");
-const avatarImg    = document.getElementById("avatar");
-const btnReplay    = document.getElementById("btn-replay");
-const btnVoice     = document.getElementById("btn-voice-toggle");
-
-// Imposta avatar in base al genere
-avatarImg.src = getAvatarUrl();
-
-function syncVoiceBtn() {
-  btnVoice.textContent = isVoiceEnabled() ? '\u{1F508}' : '\u{1F507}';
-}
-syncVoiceBtn();
-
-setAvatarCallback(speaking => {
-  avatarWrap.classList.toggle("avatar-speaking", speaking);
-});
-
-btnReplay.addEventListener("click", () => speakText(QUESTIONS[currentQ]));
-btnVoice.addEventListener("click", () => { setVoiceEnabled(!isVoiceEnabled()); syncVoiceBtn(); });
 
 function renderQuestion(n) {
   const pct = Math.round((n / QUESTIONS.length) * 100);
@@ -87,7 +67,6 @@ function renderQuestion(n) {
   progressLabel.textContent = "Domanda " + (n + 1) + " di " + QUESTIONS.length;
   questionNum.textContent = n + 1;
   questionText.textContent = QUESTIONS[n];
-  speakText(QUESTIONS[n]);
   radios.forEach(r => { r.checked = answers[n] !== null && Number(r.value) === answers[n]; });
   errEl.textContent = "";
   backBtn.hidden = (n === 0);
