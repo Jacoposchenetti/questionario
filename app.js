@@ -1,4 +1,30 @@
-﻿// Firebase è caricato dinamicamente solo al momento dell'invio
+﻿// ─── Diagnostica Firebase (auto-run al caricamento) ──────────────────────────
+(async () => {
+  const log = (msg, ok = true) => console.log(`%c[FB-TEST] ${msg}`, `color:${ok ? "green" : "red"};font-weight:bold`);
+  try {
+    log("1. Carico firebase-app...");
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js");
+    log("2. Carico firebase-firestore...");
+    const { getFirestore, collection, addDoc, serverTimestamp } =
+      await import("https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js");
+    log("3. Carico firebase-config...");
+    const { firebaseConfig } = await import("./firebase-config.js");
+    log("4. InitializeApp...");
+    const app = initializeApp(firebaseConfig, "diagnostic-instance");
+    log("5. GetFirestore...");
+    const db = getFirestore(app);
+    log("6. Scrivo documento di test su Firestore...");
+    const ref = await addDoc(collection(db, "diagnostics"), {
+      test: true,
+      createdAt: serverTimestamp(),
+    });
+    log(`7. SUCCESSO! Documento scritto: ${ref.id}`);
+  } catch (e) {
+    console.error("[FB-TEST] FALLITO:", e.code ?? "", e.message);
+  }
+})();
+
+// Firebase è caricato dinamicamente solo al momento dell'invio
 // così i bottoni di navigazione funzionano sempre, anche se il CDN è lento.
 
 let _db = null;
