@@ -52,6 +52,7 @@ function clearErr(id)     { document.getElementById(id).textContent = ""; }
 function validateStep1() {
   if (!val("nome"))       return "Inserisci il nome.";
   if (!val("cognome"))    return "Inserisci il cognome.";
+  if (!val("email"))      return "Inserisci l'email.";
   const age = Number(val("age"));
   if (!age || age < 18 || age > 99) return "Inserisci un\u2019et\u00e0 valida (18\u201399).";
   if (!val("gender"))     return "Seleziona il genere.";
@@ -119,6 +120,7 @@ document.getElementById("main-form").addEventListener("submit", (e) => {
   const payload = {
     nome:              val("nome"),
     cognome:           val("cognome"),
+    email:             val("email"),
     age:               Number(val("age")),
     gender:            val("gender"),
     education:         val("education"),
