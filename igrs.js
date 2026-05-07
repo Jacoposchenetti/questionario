@@ -37,6 +37,7 @@ let currentQ = 0;
 const answers = new Array(QUESTIONS.length).fill(null);
 let timerInterval = null;
 let timerDone = false;
+let maxReached = 0; // indice massimo raggiunto — non si ripete il timer se torniamo indietro
 
 const progressBar  = document.getElementById("progress-bar");
 const progressLabel = document.getElementById("progress-label");
@@ -44,6 +45,7 @@ const questionNum  = document.getElementById("question-num");
 const questionText = document.getElementById("question-text");
 const radios       = document.querySelectorAll("input[name=\u0027answer\u0027]");
 const nextBtn      = document.getElementById("btn-next");
+const backBtn      = document.getElementById("btn-back");
 const timerEl      = document.getElementById("timer");
 const errEl        = document.getElementById("err");
 
@@ -56,7 +58,24 @@ function renderQuestion(n) {
   questionText.textContent = QUESTIONS[n];
   radios.forEach(r => { r.checked = answers[n] !== null && Number(r.value) === answers[n]; });
   errEl.textContent = "";
-  startTimer();
+  backBtn.hidden = (n === 0);
+  if (n <= maxReached && answers[n] !== null) {
+    // domanda già vista e risposta già data: timer non necessario
+    skipTimer();
+  } else if (n <= maxReached) {
+    // domanda già vista ma senza risposta (es. tornato indietro senza selezionare)
+    skipTimer();
+  } else {
+    maxReached = n;
+    startTimer();
+  }
+}
+
+function skipTimer() {
+  clearInterval(timerInterval);
+  timerDone = true;
+  timerEl.textContent = "";
+  nextBtn.disabled = ![...radios].some(r => r.checked);
 }
 
 function startTimer() {
@@ -83,6 +102,14 @@ radios.forEach(r => {
     if (timerDone) nextBtn.disabled = false;
     errEl.textContent = "";
   });
+});
+
+backBtn.addEventListener("click", () => {
+  // salva la risposta corrente anche tornando indietro
+  const selected = [...radios].find(r => r.checked);
+  if (selected) answers[currentQ] = Number(selected.value);
+  currentQ--;
+  renderQuestion(currentQ);
 });
 
 nextBtn.addEventListener("click", () => {
