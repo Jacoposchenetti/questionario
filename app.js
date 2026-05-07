@@ -1,52 +1,36 @@
-﻿// ─── Diagnostica Firebase (auto-run al caricamento) ──────────────────────────
-(async () => {
-  const log = (msg, ok = true) => console.log(`%c[FB-TEST] ${msg}`, `color:${ok ? "green" : "red"};font-weight:bold`);
-  try {
-    log("1. Carico firebase-app...");
-    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js");
-    log("2. Carico firebase-firestore...");
-    const { getFirestore, collection, addDoc, serverTimestamp } =
-      await import("https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js");
-    log("3. Carico firebase-config...");
-    const { firebaseConfig } = await import("./firebase-config.js");
-    log("4. InitializeApp...");
-    const app = initializeApp(firebaseConfig, "diagnostic-instance");
-    log("5. GetFirestore...");
-    const db = getFirestore(app);
-    log("6. Scrivo documento di test su Firestore...");
-    const ref = await addDoc(collection(db, "diagnostics"), {
-      test: true,
-      createdAt: serverTimestamp(),
-    });
-    log(`7. SUCCESSO! Documento scritto: ${ref.id}`);
-  } catch (e) {
-    console.error("[FB-TEST] FALLITO:", e.code ?? "", e.message);
+﻿// Salva su Firestore via REST API (compatibile con adblocker)
+const FIREBASE_API_KEY  = "AIzaSyACw47qEsgsMCC2tUlbPEu81f-1ENRB0-U";
+const FIRESTORE_URL     = "https://firestore.googleapis.com/v1/projects/questionario-9b487/databases/(default)/documents/demographics?key=" + FIREBASE_API_KEY;
+
+function toFirestoreValue(v) {
+  if (v === null || v === undefined) return { nullValue: null };
+  if (typeof v === "boolean")        return { booleanValue: v };
+  if (typeof v === "number")         return { integerValue: String(v) };
+  return { stringValue: String(v) };
+}
+
+function buildFields(payload) {
+  const fields = {};
+  for (const [k, v] of Object.entries(payload)) {
+    fields[k] = toFirestoreValue(v);
   }
-})();
-
-// Firebase è caricato dinamicamente solo al momento dell'invio
-// così i bottoni di navigazione funzionano sempre, anche se il CDN è lento.
-
-let _db = null;
-
-async function getDb() {
-  if (_db) return _db;
-  const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js");
-  const { getFirestore }  = await import("https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js");
-  const { firebaseConfig } = await import("./firebase-config.js");
-  const app = initializeApp(firebaseConfig);
-  _db = getFirestore(app);
-  return _db;
+  fields["createdAt"] = { timestampValue: new Date().toISOString() };
+  return fields;
 }
 
 async function saveDoc(payload) {
-  const { addDoc, collection, serverTimestamp } =
-    await import("https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js");
-  const db = await getDb();
-  await addDoc(collection(db, "demographics"), {
-    ...payload,
-    createdAt: serverTimestamp(),
+  const body = JSON.stringify({ fields: buildFields(payload) });
+  const res = await fetch(FIRESTORE_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
   });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const code = err?.error?.status ?? res.status;
+    throw Object.assign(new Error(err?.error?.message ?? "HTTP " + res.status), { code });
+  }
+  return res.json();
 }
 
 // --- Step navigation ---------------------------------------------------------
@@ -207,8 +191,8 @@ document.getElementById("main-form").addEventListener("submit", async (e) => {
     console.error("Firestore error:", error);
     const code = error?.code ?? "";
     let msg = "Errore durante il salvataggio.";
-    if (code === "permission-denied") msg = "Firestore: permessi negati. Controlla le regole del database.";
-    else if (code) msg = "Errore Firebase: " + code;
+    if (code === "PERMISSION_DENIED") msg = "Firestore: permessi negati. Controlla le regole.";
+    else if (code) msg = "Errore: " + code;
     else if (error.message) msg = error.message;
     setStatus(msg, "error");
     submitBtn.disabled = false;
