@@ -1,5 +1,13 @@
-﻿const FIREBASE_API_KEY = "AIzaSyACw47qEsgsMCC2tUlbPEu81f-1ENRB0-U";
-const IGRS_URL = "https://firestore.googleapis.com/v1/projects/questionario-9b487/databases/(default)/documents/igrs_responses?key=" + FIREBASE_API_KEY;
+﻿// Salva su Firestore via REST API — unico salvataggio finale con tutti i dati
+const FIREBASE_API_KEY = "AIzaSyACw47qEsgsMCC2tUlbPEu81f-1ENRB0-U";
+const FINAL_URL = "https://firestore.googleapis.com/v1/projects/questionario-9b487/databases/(default)/documents/responses?key=" + FIREBASE_API_KEY;
+
+function toFSVal(v) {
+  if (v === null || v === undefined) return { nullValue: null };
+  if (typeof v === "boolean") return { booleanValue: v };
+  if (typeof v === "number") return { integerValue: String(v) };
+  return { stringValue: String(v) };
+}
 
 const QUESTIONS = [
   "Credo che se gli altri mi conoscessero realmente non vorrebbero avere nulla a che fare con me",
@@ -29,8 +37,6 @@ let currentQ = 0;
 const answers = new Array(QUESTIONS.length).fill(null);
 let timerInterval = null;
 let timerDone = false;
-
-const demographicsId = new URLSearchParams(location.search).get("id") ?? "";
 
 const progressBar  = document.getElementById("progress-bar");
 const progressLabel = document.getElementById("progress-label");
@@ -95,12 +101,27 @@ async function submitAll() {
   clearInterval(timerInterval);
   nextBtn.disabled = true;
   nextBtn.textContent = "Salvataggio...";
+
+  // Carica i dati demografici salvati in sessionStorage
+  const demographics = JSON.parse(sessionStorage.getItem("demographicsData") ?? "{}");
+
+  // Costruisce il documento Firestore unificato
   const fields = {};
-  answers.forEach((ans, i) => { fields["q" + (i + 1)] = { integerValue: String(ans) }; });
-  fields.demographicsId = { stringValue: demographicsId };
+
+  // Dati demografici
+  for (const [k, v] of Object.entries(demographics)) {
+    fields[k] = toFSVal(v);
+  }
+
+  // Risposte IGRS (prefisso igrs_)
+  answers.forEach((ans, i) => {
+    fields["igrs_q" + (i + 1)] = { integerValue: String(ans) };
+  });
+
   fields.createdAt = { timestampValue: new Date().toISOString() };
+
   try {
-    const res = await fetch(IGRS_URL, {
+    const res = await fetch(FINAL_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fields }),
@@ -109,6 +130,7 @@ async function submitAll() {
       const err = await res.json().catch(() => ({}));
       throw new Error(err?.error?.message ?? "HTTP " + res.status);
     }
+    sessionStorage.removeItem("demographicsData");
     document.querySelector(".page").innerHTML = `
       <div class="card" style="text-align:center;padding:56px 32px;animation:fadeUp 600ms ease-out both">
         <p style="font-size:2.8rem;margin:0">&#x2713;</p>

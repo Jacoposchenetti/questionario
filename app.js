@@ -1,37 +1,4 @@
-﻿// Salva su Firestore via REST API (compatibile con adblocker)
-const FIREBASE_API_KEY  = "AIzaSyACw47qEsgsMCC2tUlbPEu81f-1ENRB0-U";
-const FIRESTORE_URL     = "https://firestore.googleapis.com/v1/projects/questionario-9b487/databases/(default)/documents/demographics?key=" + FIREBASE_API_KEY;
-
-function toFirestoreValue(v) {
-  if (v === null || v === undefined) return { nullValue: null };
-  if (typeof v === "boolean")        return { booleanValue: v };
-  if (typeof v === "number")         return { integerValue: String(v) };
-  return { stringValue: String(v) };
-}
-
-function buildFields(payload) {
-  const fields = {};
-  for (const [k, v] of Object.entries(payload)) {
-    fields[k] = toFirestoreValue(v);
-  }
-  fields["createdAt"] = { timestampValue: new Date().toISOString() };
-  return fields;
-}
-
-async function saveDoc(payload) {
-  const body = JSON.stringify({ fields: buildFields(payload) });
-  const res = await fetch(FIRESTORE_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    const code = err?.error?.status ?? res.status;
-    throw Object.assign(new Error(err?.error?.message ?? "HTTP " + res.status), { code });
-  }
-  return res.json();
-}
+﻿// Dati demografici salvati in sessionStorage; il salvataggio su Firestore avviene alla fine di tutti i questionari.
 
 // --- Step navigation ---------------------------------------------------------
 
@@ -138,13 +105,7 @@ document.getElementById("btn-back-3").addEventListener("click", () => showStep(2
 
 // --- Submit ------------------------------------------------------------------
 
-function setStatus(msg, type = "") {
-  const el = document.getElementById("status");
-  el.textContent = msg;
-  el.className = ("status " + type).trim();
-}
-
-document.getElementById("main-form").addEventListener("submit", async (e) => {
+document.getElementById("main-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const err = validateStep3();
   if (err) { showErr("err-3", err); return; }
@@ -152,7 +113,6 @@ document.getElementById("main-form").addEventListener("submit", async (e) => {
 
   const submitBtn = document.getElementById("submit-btn");
   submitBtn.disabled = true;
-  setStatus("Salvataggio in corso\u2026");
 
   const therapy = document.querySelector("[name='hadTherapy']:checked").value;
 
@@ -179,18 +139,6 @@ document.getElementById("main-form").addEventListener("submit", async (e) => {
     payload.studyField = val("studyField");
   }
 
-  try {
-    const saved = await saveDoc(payload);
-    const docId = saved?.name?.split("/").pop() ?? "";
-    window.location.href = "igrs.html?id=" + encodeURIComponent(docId);
-  } catch (error) {
-    console.error("Firestore error:", error);
-    const code = error?.code ?? "";
-    let msg = "Errore durante il salvataggio.";
-    if (code === "PERMISSION_DENIED") msg = "Firestore: permessi negati. Controlla le regole.";
-    else if (code) msg = "Errore: " + code;
-    else if (error.message) msg = error.message;
-    setStatus(msg, "error");
-    submitBtn.disabled = false;
-  }
+  sessionStorage.setItem("demographicsData", JSON.stringify(payload));
+  window.location.href = "igrs.html";
 });
