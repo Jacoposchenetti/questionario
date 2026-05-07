@@ -1,80 +1,127 @@
 /**
- * speech.js — Modulo TTS italiano con Web Speech API.
- * Esportato come ES module, zero dipendenze esterne.
+ * speech.js — TTS italiano: ElevenLabs (se KEY impostata) oppure Web Speech API.
  */
 
-let voice = null;
-let avatarCallback = null;
-let voiceEnabled = localStorage.getItem("voiceEnabled") !== "false"; // default: true
+// ─── ElevenLabs ─────────────────────────────────────────────────────────────
+// Incolla qui la tua API key ElevenLabs. Se vuota, si usa Web Speech API.
+const ELEVENLABS_KEY = "";
+// Voice ID: "Aria" multilingua, suona bene in italiano. Puoi cambiarlo.
+const ELEVENLABS_VOICE_ID = "9BWtsMINqrJLrRacOk9x";
 
-// Carica le voci disponibili (async su Chrome/Edge)
-function loadVoice() {
+// ─── Stato condiviso ─────────────────────────────────────────────────────────
+let avatarCallback = null;
+let voiceEnabled = localStorage.getItem("voiceEnabled") !== "false";
+let currentAudio = null; // per ElevenLabs
+
+// ─── Web Speech API ──────────────────────────────────────────────────────────
+let wsVoice = null;
+
+function loadWSVoice() {
   const voices = speechSynthesis.getVoices();
-  // Preferenza: voce italiana specifica, poi qualsiasi it-IT, poi it
-  voice =
-    voices.find(v => /it[-_]IT/i.test(v.lang) && /elsa|alice|carla/i.test(v.name)) ||
+  wsVoice =
+    voices.find(v => /it[-_]IT/i.test(v.lang) && /elsa|alice|carla|google/i.test(v.name)) ||
     voices.find(v => /it[-_]IT/i.test(v.lang)) ||
     voices.find(v => /^it/i.test(v.lang)) ||
     null;
 }
 
 if (typeof speechSynthesis !== "undefined") {
-  loadVoice();
-  speechSynthesis.onvoiceschanged = loadVoice;
+  loadWSVoice();
+  speechSynthesis.addEventListener("voiceschanged", loadWSVoice);
 }
 
-/**
- * Registra un callback che riceve true (bocca aperta) / false (bocca chiusa).
- * @param {(speaking: boolean) => void} fn
- */
-export function setAvatarCallback(fn) {
-  avatarCallback = fn;
+// Workaround bug Chrome: speechSynthesis si blocca su testi lunghi (>~15s).
+// Metodo: pause+resume ogni 10s mentre sta parlando.
+let wsKeepAliveInterval = null;
+function wsStartKeepAlive() {
+  wsStopKeepAlive();
+  wsKeepAliveInterval = setInterval(() => {
+    if (speechSynthesis.speaking) {
+      speechSynthesis.pause();
+      speechSynthesis.resume();
+    } else {
+      wsStopKeepAlive();
+    }
+  }, 10000);
+}
+function wsStopKeepAlive() {
+  clearInterval(wsKeepAliveInterval);
+  wsKeepAliveInterval = null;
 }
 
-/**
- * Legge `text` ad alta voce in italiano.
- * @param {string} text
- */
-export function speakText(text) {
-  if (typeof speechSynthesis === "undefined") return;
-  speechSynthesis.cancel(); // interrompe eventuale lettura in corso
-
-  if (!voiceEnabled) return;
-
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = "it-IT";
-  utter.rate = 0.92;
-  utter.pitch = 1.05;
-  if (voice) utter.voice = voice;
-
-  utter.onstart = () => avatarCallback?.(true);
-  utter.onend   = () => avatarCallback?.(false);
-  utter.onerror = () => avatarCallback?.(false);
-
-  speechSynthesis.speak(utter);
-}
-
-/**
- * Interrompe immediatamente la lettura in corso.
- */
-export function stopSpeech() {
-  if (typeof speechSynthesis === "undefined") return;
+function speakWithWS(text) {
   speechSynthesis.cancel();
+  wsStopKeepAlive();
+  // Piccolo delay dopo cancel per evitare race condition in Chrome
+  setTimeout(() => {
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "it-IT";
+    utter.rate = 0.9;
+    utter.pitch = 1.0;
+    if (wsVoice) utter.voice = wsVoice;
+    utter.onstart  = () => { avatarCallback?.(true); wsStartKeepAlive(); };
+    utter.onend    = () => { avatarCallback?.(false); wsStopKeepAlive(); };
+    utter.onerror  = () => { avatarCallback?.(false); wsStopKeepAlive(); };
+    speechSynthesis.speak(utter);
+  }, 80);
+}
+
+// ─── ElevenLabs API ──────────────────────────────────────────────────────────
+async function speakWithElevenLabs(text) {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  avatarCallback?.(true);
+  try {
+    const res = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}`,
+      {
+        method: "POST",
+        headers: {
+          "xi-api-key": ELEVENLABS_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text,
+          model_id: "eleven_multilingual_v2",
+          voice_settings: { stability: 0.48, similarity_boost: 0.78, style: 0.2, use_speaker_boost: true },
+        }),
+      }
+    );
+    if (!res.ok) throw new Error("ElevenLabs HTTP " + res.status);
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    currentAudio = new Audio(url);
+    currentAudio.onended = () => { avatarCallback?.(false); currentAudio = null; };
+    currentAudio.onerror = () => { avatarCallback?.(false); currentAudio = null; };
+    await currentAudio.play();
+  } catch (e) {
+    console.warn("ElevenLabs error:", e.message);
+    avatarCallback?.(false);
+    // Fallback a Web Speech API se ElevenLabs fallisce
+    speakWithWS(text);
+  }
+}
+
+// ─── API pubblica ────────────────────────────────────────────────────────────
+export function setAvatarCallback(fn) { avatarCallback = fn; }
+
+export function speakText(text) {
+  if (!voiceEnabled) return;
+  if (ELEVENLABS_KEY) {
+    speakWithElevenLabs(text);
+  } else {
+    if (typeof speechSynthesis === "undefined") return;
+    speakWithWS(text);
+  }
+}
+
+export function stopSpeech() {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  if (typeof speechSynthesis !== "undefined") { speechSynthesis.cancel(); wsStopKeepAlive(); }
   avatarCallback?.(false);
 }
 
-/**
- * Restituisce lo stato corrente del toggle voce.
- * @returns {boolean}
- */
-export function isVoiceEnabled() {
-  return voiceEnabled;
-}
+export function isVoiceEnabled() { return voiceEnabled; }
 
-/**
- * Attiva / disattiva la voce. Persiste su localStorage.
- * @param {boolean} enabled
- */
 export function setVoiceEnabled(enabled) {
   voiceEnabled = enabled;
   localStorage.setItem("voiceEnabled", String(enabled));

@@ -462,21 +462,23 @@ button:disabled { opacity: 0.65; cursor: not-allowed; }
 }
 
 #avatar {
-  width: 68px;
-  height: 68px;
-  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.18));
-  transition: transform 200ms ease;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2.5px solid var(--accent);
+  display: block;
+  background: var(--bg);
+  transition: box-shadow 200ms ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
 
-.avatar-speaking #avatar { transform: scale(1.04); }
-
-@keyframes mouthPulse {
-  0%, 100% { ry: 2px; }
-  50%       { ry: 9px; }
+.avatar-speaking #avatar {
+  animation: speakRing 600ms ease-in-out infinite;
 }
 
-.avatar-speaking #avatar-mouth {
-  animation: mouthPulse 280ms ease-in-out infinite;
+@keyframes speakRing {
+  0%, 100% { box-shadow: 0 0 0 2px var(--accent), 0 0 0 6px rgba(31,122,97,0.25); }
+  50%       { box-shadow: 0 0 0 2px var(--accent), 0 0 0 14px rgba(31,122,97,0.04); }
 }
 
 #btn-voice-toggle {
