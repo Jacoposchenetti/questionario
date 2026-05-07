@@ -282,8 +282,12 @@ document.getElementById("main-form").addEventListener("submit", async (e) => {
     payload.studyField = val("studyField");
   }
 
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Timeout: nessuna risposta da Firebase dopo 15 secondi.")), 15000)
+  );
+
   try {
-    await saveDoc(payload);
+    await Promise.race([saveDoc(payload), timeout]);
     document.querySelector(".page").innerHTML = `
       <div class="card" style="text-align:center;padding:56px 32px;animation:fadeUp 600ms ease-out both">
         <p style="font-size:2.8rem;margin:0">&#x2713;</p>
@@ -291,8 +295,9 @@ document.getElementById("main-form").addEventListener("submit", async (e) => {
         <p style="color:var(--ink-soft)">I tuoi dati sono stati salvati correttamente.</p>
       </div>`;
   } catch (error) {
-    console.error(error);
-    setStatus("Errore durante il salvataggio. Riprova tra poco.", "error");
+    console.error("Firestore error:", error);
+    const msg = error?.code ? `Errore Firebase: ${error.code}` : error.message;
+    setStatus(msg, "error");
     submitBtn.disabled = false;
   }
 });
