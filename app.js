@@ -33,7 +33,10 @@ class AddressAutocomplete {
     this.timer  = null;
     this.lastQuery = "";
 
+    if (!this.input || !this.hidden) return; // elemento non ancora nel DOM
+
     const wrap = this.input.closest(".ac-wrap");
+    if (!wrap) return;
     this.dropdown = document.createElement("ul");
     this.dropdown.className = "ac-dropdown";
     this.dropdown.setAttribute("role", "listbox");
@@ -119,11 +122,18 @@ class AddressAutocomplete {
   getValue() { return this.hidden.value ? JSON.parse(this.hidden.value) : null; }
 }
 
-// ─── Autocomplete instances ──────────────────────────────────────────────────
+// ─── Autocomplete instances (lazy: create when step 2 first opens) ──────────
 
-const acBirth = new AddressAutocomplete("birthPlace",  "birthPlace-val");
-const acGrew  = new AddressAutocomplete("grewUpPlace", "grewUpPlace-val");
-const acStudy = new AddressAutocomplete("studyPlace",  "studyPlace-val");
+let acBirth = null;
+let acGrew  = null;
+let acStudy = null;
+
+function initAutocomplete() {
+  if (acBirth) return; // already initialised
+  acBirth = new AddressAutocomplete("birthPlace",  "birthPlace-val");
+  acGrew  = new AddressAutocomplete("grewUpPlace", "grewUpPlace-val");
+  acStudy = new AddressAutocomplete("studyPlace",  "studyPlace-val");
+}
 
 // ─── Step navigation ─────────────────────────────────────────────────────────
 
@@ -142,6 +152,7 @@ function showStep(n) {
   progressBar.style.width = pct + "%";
   progressBar.setAttribute("aria-valuenow", pct);
   progressLabel.textContent = "Sezione " + n + " di " + TOTAL_STEPS;
+  if (n === 2) initAutocomplete();
   currentStep = n;
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -187,10 +198,10 @@ function validateStep1() {
 }
 
 function validateStep2() {
-  if (!acBirth.isValid()) return "Seleziona il luogo di nascita dalla lista.";
-  if (!acGrew.isValid())  return "Seleziona il luogo dove sei cresciuto/a dalla lista.";
+  if (!acBirth || !acBirth.isValid()) return "Seleziona il luogo di nascita dalla lista.";
+  if (!acGrew  || !acGrew.isValid())  return "Seleziona il luogo dove sei cresciuto/a dalla lista.";
   if (isStudent()) {
-    if (!acStudy.isValid()) return "Seleziona il luogo dove studi dalla lista.";
+    if (!acStudy || !acStudy.isValid()) return "Seleziona il luogo dove studi dalla lista.";
     if (!val("studyField")) return "Inserisci il corso di studi.";
     if (!val("studyYear"))  return "Seleziona l\u2019anno di studi.";
   }
@@ -253,18 +264,17 @@ document.getElementById("main-form").addEventListener("submit", async (e) => {
     gender:            val("gender"),
     education:         val("education"),
     occupation:        val("occupation"),
-    birthPlace:        acBirth.getValue(),
-    grewUpPlace:       acGrew.getValue(),
+    birthPlace:        acBirth ? acBirth.getValue() : null,
+    grewUpPlace:       acGrew  ? acGrew.getValue()  : null,
     hadTherapy:        therapy === "si",
     therapyDuration:   therapy === "si" ? val("therapyDuration") : null,
     sexualOrientation: val("sexualOrientation"),
     consent:           true,
-    createdAt:         serverTimestamp(),
     source:            "github-pages",
   };
 
   if (isStudent()) {
-    payload.studyPlace = acStudy.getValue();
+    payload.studyPlace = acStudy ? acStudy.getValue() : null;
     payload.studyField = val("studyField");
     payload.studyYear  = val("studyYear");
   }
