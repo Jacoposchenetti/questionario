@@ -6,7 +6,7 @@
 // Incolla qui la tua API key ElevenLabs. Se vuota, si usa Web Speech API.
 const ELEVENLABS_KEY = "sk_c1a219c4c38cc34877378b2973c5e3ec24c779293fc72830";
 // Voci per genere: maschio e femmina/altro
-const ELEVENLABS_VOICE_MALE   = "4YsN90HrCPrOCmBglwMA";
+const ELEVENLABS_VOICE_MALE   = "13Cuh3NuYvWOVQtLbRN8";
 const ELEVENLABS_VOICE_FEMALE  = "BZc8d1MPTdZkyGbE9Sin";
 
 // Legge il genere da sessionStorage per scegliere voce e avatar
