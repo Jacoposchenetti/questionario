@@ -118,6 +118,13 @@ class AddressAutocomplete {
     }
   }
 
+  // Se l'utente ha digitato testo senza scegliere dalla lista, accetta il testo
+  acceptTyped() {
+    if (!this.hidden.value && this.input.value.trim()) {
+      this.hidden.value = JSON.stringify({ display: this.input.value.trim(), lat: null, lon: null });
+    }
+  }
+
   isValid()  { return !!this.hidden.value; }
   getValue() { return this.hidden.value ? JSON.parse(this.hidden.value) : null; }
 }
@@ -231,6 +238,9 @@ document.getElementById("btn-next-1").addEventListener("click", () => {
 document.getElementById("btn-back-2").addEventListener("click", () => showStep(1));
 
 document.getElementById("btn-next-2").addEventListener("click", () => {
+  acBirth?.acceptTyped();
+  acGrew?.acceptTyped();
+  acStudy?.acceptTyped();
   const err = validateStep2();
   if (err) { showErr("err-2", err); return; }
   clearErr("err-2");
