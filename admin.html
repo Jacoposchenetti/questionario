@@ -187,7 +187,6 @@
     <div class="stat-box"><div class="num" id="stat-m">–</div><div class="lbl">Maschi</div></div>
     <div class="stat-box"><div class="num" id="stat-f">–</div><div class="lbl">Femmine</div></div>
     <div class="stat-box"><div class="num" id="stat-avg-age">–</div><div class="lbl">Età media</div></div>
-    <div class="stat-box"><div class="num" id="stat-avg-igrs">–</div><div class="lbl">IGRS medio</div></div>
     <div class="stat-box"><div class="num" id="stat-avg-ecr-anx">–</div><div class="lbl">ECR Ansia media</div></div>
     <div class="stat-box"><div class="num" id="stat-avg-ecr-avo">–</div><div class="lbl">ECR Evitamento medio</div></div>
     <div class="stat-box"><div class="num" id="stat-avg-pbs">–</div><div class="lbl">PBS medio</div></div>
@@ -219,7 +218,6 @@
           <th>Età</th>
           <th>Genere</th>
           <th>Terapia</th>
-          <th>IGRS tot.</th>
           <th>ECR Ansia</th>
           <th>ECR Evit.</th>
           <th>PBS tot.</th>
@@ -227,7 +225,7 @@
         </tr>
       </thead>
       <tbody id="table-body">
-        <tr><td colspan="13" style="text-align:center;padding:32px;color:var(--ink-soft)">Caricamento…</td></tr>
+        <tr><td colspan="12" style="text-align:center;padding:32px;color:var(--ink-soft)">Caricamento…</td></tr>
       </tbody>
     </table>
   </div>
@@ -313,33 +311,34 @@
     const get = k => fval(f, k);
     const getNum = k => { const v = get(k); return v !== null ? Number(v) : null; };
 
-    // IGRS totale (20 item, scala 1-5)
-    let igrsSum = 0, igrsCount = 0;
-    for (let i = 1; i <= 20; i++) {
-      const v = getNum("igrs_q" + i);
-      if (v !== null) { igrsSum += v; igrsCount++; }
-    }
-    const igrsTotal = igrsCount === 20 ? igrsSum : null;
+    // IGRS sottoscale (scala 1-5)
+    const igrsSubScore = items => {
+      const vals = items.map(i => getNum("igrs_q" + i));
+      return vals.every(v => v !== null) ? vals.reduce((s, v) => s + v, 0) : null;
+    };
+    const igrsSG = igrsSubScore([2,6,10,16,19]);       // Survivor Guilt
+    const igrsSD = igrsSubScore([11,13,17,18]);         // Separation/Disloyalty
+    const igrsOR = igrsSubScore([4,7,12]);              // Omnipotent Responsibility
+    const igrsSH = igrsSubScore([1,8,15]);              // Self-Hate
+    const igrsBG = igrsSubScore([3,5,9,14,20]);         // Burdening Guilt
 
-    // ECR-R: item ansia (pari) e evitamento (dispari) — scala 1-7, 18 item ciascuno
-    // Ansia: q2,q4,q6,q8,q10,q12,q14,q16,q20,q22,q24,q26,q28,q30,q32,q34,q36 + q18(R)
-    // Evitamento: q1,q3,q5,q7,q9,q11,q13,q15,q17,q19,q21,q23,q25,q27,q29,q31,q33,q35
-    // Punteggio grezzo: media degli item (invertiti dove indicato)
-    // Per semplicità usiamo la somma grezza degli item pari/dispari
-    const ecrAnxItems  = [2,4,6,8,10,12,14,16,20,22,24,26,28,30,32,34,36];
-    const ecrAvoItems  = [1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35];
-    // Item invertiti ECR-R (scored R): 3,15,19,22,25,27,29,31,33
-    const ecrReversed  = new Set([3,15,19,22,25,27,29,31,33]);
+    // ECR-R: 18 item ansia (pari) e 18 item evitamento (dispari) — scala 1-7
+    const ecrAnxItems = [2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36];
+    const ecrAvoItems = [1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35];
+    // Item invertiti ansia: 18, 22
+    const ecrAnxRev = new Set([18, 22]);
+    // Item invertiti evitamento: 3,7,15,17,19,21,23,25,29,31,33,35
+    const ecrAvoRev = new Set([3,7,15,17,19,21,23,25,29,31,33,35]);
 
     let anxSum = 0, anxCount = 0;
     for (const i of ecrAnxItems) {
       const v = getNum("ecr_q" + i);
-      if (v !== null) { anxSum += ecrReversed.has(i) ? (8 - v) : v; anxCount++; }
+      if (v !== null) { anxSum += ecrAnxRev.has(i) ? (8 - v) : v; anxCount++; }
     }
     let avoSum = 0, avoCount = 0;
     for (const i of ecrAvoItems) {
       const v = getNum("ecr_q" + i);
-      if (v !== null) { avoSum += ecrReversed.has(i) ? (8 - v) : v; avoCount++; }
+      if (v !== null) { avoSum += ecrAvoRev.has(i) ? (8 - v) : v; avoCount++; }
     }
     const ecrAnx = anxCount === ecrAnxItems.length ? Math.round((anxSum / anxCount) * 10) / 10 : null;
     const ecrAvo = avoCount === ecrAvoItems.length ? Math.round((avoSum / avoCount) * 10) / 10 : null;
@@ -370,7 +369,7 @@
       relazione: get("relazione") ?? "",
       relazioneDurata: get("relazioneDurata") ?? "",
       convivenza: get("convivenza") ?? "",
-      igrsTotal, ecrAnx, ecrAvo, pbsTotal,
+      igrsSG, igrsSD, igrsOR, igrsSH, igrsBG, ecrAnx, ecrAvo, pbsTotal,
       createdAt,
       raw: f,
     };
@@ -407,7 +406,6 @@
     document.getElementById("stat-m").textContent = docs.filter(d => d.gender === "maschio").length;
     document.getElementById("stat-f").textContent = docs.filter(d => d.gender === "femmina").length;
     document.getElementById("stat-avg-age").textContent = avg(docs.map(d => d.age));
-    document.getElementById("stat-avg-igrs").textContent = avg(docs.map(d => d.igrsTotal));
     document.getElementById("stat-avg-ecr-anx").textContent = avg(docs.map(d => d.ecrAnx));
     document.getElementById("stat-avg-ecr-avo").textContent = avg(docs.map(d => d.ecrAvo));
     document.getElementById("stat-avg-pbs").textContent = avg(docs.map(d => d.pbsTotal));
@@ -435,7 +433,7 @@
   function renderTable(docs) {
     const tbody = document.getElementById("table-body");
     if (!docs.length) {
-      tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;padding:32px;color:var(--ink-soft)">Nessun soggetto trovato.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;padding:32px;color:var(--ink-soft)">Nessun soggetto trovato.</td></tr>`;
       return;
     }
     tbody.innerHTML = docs.map((d, i) => `
@@ -448,7 +446,6 @@
         <td>${d.age ?? "–"}</td>
         <td>${genderBadge(d.gender)}</td>
         <td>${d.therapy || "–"}</td>
-        ${scoreCell(d.igrsTotal, 100)}
         ${scoreCell(d.ecrAnx, 7)}
         ${scoreCell(d.ecrAvo, 7)}
         ${scoreCell(d.pbsTotal, 413)}
@@ -485,24 +482,19 @@
         <span class="k">Durata relazione</span><span class="v">${d.relazioneDurata || "–"}</span>
         <span class="k">Convivenza</span>   <span class="v">${d.convivenza || "–"}</span>` : ""}
       </div>
-      <h3 style="font-size:0.88rem;color:var(--ink-soft);margin-bottom:10px;margin-top:4px">PUNTEGGI</h3>
-      <div class="scores-grid">
-        <div class="score-card">
-          <div class="sc-label">IGRS totale<br><small style="font-weight:400">(range 20–100)</small></div>
-          <div class="sc-val">${d.igrsTotal ?? "–"}</div>
-        </div>
-        <div class="score-card">
-          <div class="sc-label">ECR Ansia (media)<br><small style="font-weight:400">(range 1–7)</small></div>
-          <div class="sc-val">${d.ecrAnx ?? "–"}</div>
-        </div>
-        <div class="score-card">
-          <div class="sc-label">ECR Evitamento (media)<br><small style="font-weight:400">(range 1–7)</small></div>
-          <div class="sc-val">${d.ecrAvo ?? "–"}</div>
-        </div>
-        <div class="score-card">
-          <div class="sc-label">PBS totale<br><small style="font-weight:400">(range 0–413)</small></div>
-          <div class="sc-val">${d.pbsTotal ?? "–"}</div>
-        </div>
+      <h3 style="font-size:0.88rem;color:var(--ink-soft);margin-bottom:6px;margin-top:4px">IGRS – Sottoscale</h3>
+      <div class="scores-grid" style="grid-template-columns:repeat(auto-fill,minmax(130px,1fr));margin-bottom:14px">
+        <div class="score-card"><div class="sc-label">Survivor Guilt<br><small style="font-weight:400">(range 5–25)</small></div><div class="sc-val">${d.igrsSG ?? "–"}</div></div>
+        <div class="score-card"><div class="sc-label">Sep./Disloyalty<br><small style="font-weight:400">(range 4–20)</small></div><div class="sc-val">${d.igrsSD ?? "–"}</div></div>
+        <div class="score-card"><div class="sc-label">Omnip. Resp.<br><small style="font-weight:400">(range 3–15)</small></div><div class="sc-val">${d.igrsOR ?? "–"}</div></div>
+        <div class="score-card"><div class="sc-label">Self-Hate<br><small style="font-weight:400">(range 3–15)</small></div><div class="sc-val">${d.igrsSH ?? "–"}</div></div>
+        <div class="score-card"><div class="sc-label">Burdening Guilt<br><small style="font-weight:400">(range 5–25)</small></div><div class="sc-val">${d.igrsBG ?? "–"}</div></div>
+      </div>
+      <h3 style="font-size:0.88rem;color:var(--ink-soft);margin-bottom:6px">ECR-R &amp; PBS</h3>
+      <div class="scores-grid" style="grid-template-columns:repeat(auto-fill,minmax(130px,1fr))">
+        <div class="score-card"><div class="sc-label">ECR Ansia (media)<br><small style="font-weight:400">(range 1–7)</small></div><div class="sc-val">${d.ecrAnx ?? "–"}</div></div>
+        <div class="score-card"><div class="sc-label">ECR Evitamento (media)<br><small style="font-weight:400">(range 1–7)</small></div><div class="sc-val">${d.ecrAvo ?? "–"}</div></div>
+        <div class="score-card"><div class="sc-label">PBS totale<br><small style="font-weight:400">(range 0–413)</small></div><div class="sc-val">${d.pbsTotal ?? "–"}</div></div>
       </div>
     `;
 
@@ -534,7 +526,7 @@
     const igrsCols = Array.from({length:20}, (_, i) => "igrs_q"+(i+1));
     const ecrCols  = Array.from({length:36}, (_, i) => "ecr_q"+(i+1));
     const pbsCols  = Array.from({length:59}, (_, i) => "pbs_q"+(i+1));
-    const scoreCols = ["igrsTotal","ecrAnx","ecrAvo","pbsTotal"];
+    const scoreCols = ["igrsSG","igrsSD","igrsOR","igrsSH","igrsBG","ecrAnx","ecrAvo","pbsTotal"];
     const allCols  = [...demoCols, ...scoreCols, ...igrsCols, ...ecrCols, ...pbsCols];
 
     const esc = v => {
