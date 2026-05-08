@@ -1,4 +1,5 @@
-// Dati ECR-R salvati in sessionStorage; il salvataggio su Firestore avviene alla fine del PBS.
+// Dati ECR-R: salva in sessionStorage + Firestore parziale.
+import { patchDoc } from "./fs.js";
 
 const QUESTIONS = [
   "Preferisco non mostrare al partner come mi sento dentro.",
@@ -190,6 +191,8 @@ async function submitAll() {
   }
 
   sessionStorage.setItem("ecrData", JSON.stringify(ecrData));
+  try { await patchDoc({ ...ecrData, status: "ecr" }); }
+  catch (ex) { console.warn("Firestore patch failed, continuing:", ex.message); }
   window.location.href = "pbs.html";
 }
 

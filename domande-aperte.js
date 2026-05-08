@@ -1,3 +1,5 @@
+import { patchDoc } from "./fs.js";
+
 const MIN_CHARS = 150;
 
 const padreTa  = document.getElementById("rapporto-padre");
@@ -30,7 +32,7 @@ btnBack.addEventListener("click", () => {
   window.location.href = "index.html";
 });
 
-btnAvanti.addEventListener("click", () => {
+btnAvanti.addEventListener("click", async () => {
   errPadre.textContent = "";
   errMadre.textContent = "";
   errGlobal.textContent = "";
@@ -57,10 +59,14 @@ btnAvanti.addEventListener("click", () => {
 
   if (!valid) return;
 
-  sessionStorage.setItem("domandeAperteData", JSON.stringify({
-    rapportoPadre: padre,
-    rapportoMadre: madre,
-  }));
+  const data = { rapportoPadre: padre, rapportoMadre: madre, status: "domande-aperte" };
+
+  sessionStorage.setItem("domandeAperteData", JSON.stringify(data));
+
+  btnAvanti.disabled = true;
+  btnAvanti.textContent = "Salvataggio...";
+  try { await patchDoc(data); }
+  catch (ex) { console.warn("Firestore patch failed, continuing:", ex.message); }
 
   window.location.href = "igrs.html";
 });

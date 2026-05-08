@@ -1,4 +1,5 @@
-﻿// Dati IGRS salvati in sessionStorage; il salvataggio su Firestore avviene alla fine dell'ECR-R.
+﻿// Dati IGRS: salva in sessionStorage + Firestore parziale.
+import { patchDoc } from "./fs.js";
 
 const QUESTIONS = [
   "Credo che se gli altri mi conoscessero realmente non vorrebbero avere nulla a che fare con me",
@@ -116,11 +117,13 @@ nextBtn.addEventListener("click", () => {
   }
 });
 
-function submitAll() {
+async function submitAll() {
   clearInterval(timerInterval);
   const igrsData = {};
   answers.forEach((ans, i) => { igrsData["igrs_q" + (i + 1)] = ans; });
   sessionStorage.setItem("igrsData", JSON.stringify(igrsData));
+  try { await patchDoc({ ...igrsData, status: "igrs" }); }
+  catch (ex) { console.warn("Firestore patch failed, continuing:", ex.message); }
   window.location.href = "ecr.html";
 }
 

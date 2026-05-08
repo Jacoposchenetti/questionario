@@ -1,11 +1,12 @@
-// Salva su Firestore via REST API — unico salvataggio finale con tutti i dati
-const FIREBASE_API_KEY = "AIzaSyACw47qEsgsMCC2tUlbPEu81f-1ENRB0-U";
-const FINAL_URL = "https://firestore.googleapis.com/v1/projects/questionario-9b487/databases/(default)/documents/responses?key=" + FIREBASE_API_KEY;
+// Salva su Firestore via REST API — salvataggio finale (PATCH del documento esistente)
+import { patchDoc } from "./fs.js";
+
+const FIREBASE_API_KEY = "AIzaSyACw47qEsgsMCC2tUlbPEu81f-1ENRB0-U"; // kept for legacy; use fs.js
 
 function toFSVal(v) {
   if (v === null || v === undefined) return { nullValue: null };
-  if (typeof v === "boolean") return { booleanValue: v };
-  if (typeof v === "number") return { integerValue: String(v) };
+  if (typeof v === "boolean")        return { booleanValue: v };
+  if (typeof v === "number")         return { integerValue: String(v) };
   return { stringValue: String(v) };
 }
 
@@ -166,40 +167,19 @@ async function submitAll() {
   nextBtn.disabled = true;
   nextBtn.textContent = "Salvataggio...";
 
-  const demographics      = JSON.parse(sessionStorage.getItem("demographicsData") ?? "{}");
-  const domandeAperte    = JSON.parse(sessionStorage.getItem("domandeAperteData") ?? "{}");
-  const igrsData         = JSON.parse(sessionStorage.getItem("igrsData") ?? "{}");
-  const ecrData          = JSON.parse(sessionStorage.getItem("ecrData") ?? "{}");
-
-  const fields = {};
-
-  // Dati demografici
-  for (const [k, v] of Object.entries(demographics)) fields[k] = toFSVal(v);
-  // Domande aperte
-  for (const [k, v] of Object.entries(domandeAperte)) fields[k] = toFSVal(v);
-  // Risposte IGRS
-  for (const [k, v] of Object.entries(igrsData)) fields[k] = toFSVal(v);
-  // Risposte ECR-R + dati relazione
-  for (const [k, v] of Object.entries(ecrData)) fields[k] = toFSVal(v);
-  // Risposte PBS
-  answers.forEach((ans, i) => { fields["pbs_q" + (i + 1)] = toFSVal(ans); });
-
-  fields["createdAt"] = { timestampValue: new Date().toISOString() };
+  // Collect PBS answers
+  const pbsData = {};
+  answers.forEach((ans, i) => { pbsData["pbs_q" + (i + 1)] = ans; });
+  pbsData.createdAt = new Date().toISOString();
+  pbsData.status    = "completed";
 
   try {
-    const res = await fetch(FINAL_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fields }),
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err?.error?.message ?? "HTTP " + res.status);
-    }
+    await patchDoc(pbsData);
     sessionStorage.removeItem("demographicsData");
     sessionStorage.removeItem("domandeAperteData");
     sessionStorage.removeItem("igrsData");
     sessionStorage.removeItem("ecrData");
+    sessionStorage.removeItem("firestoreDocId");
     document.querySelector(".page").innerHTML = `
       <div class="card" style="text-align:center;padding:56px 32px;animation:fadeUp 600ms ease-out both">
         <p style="font-size:2.8rem;margin:0">&#x2713;</p>

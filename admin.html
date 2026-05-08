@@ -204,6 +204,14 @@
       <option value="si">In terapia</option>
       <option value="no">Non in terapia</option>
     </select>
+    <select id="filter-status">
+      <option value="">Stato: tutti</option>
+      <option value="completed">Completati</option>
+      <option value="ecr">Interrotti all'ECR-R</option>
+      <option value="igrs">Interrotti all'IGRS</option>
+      <option value="domande-aperte">Interrotti alle domande aperte</option>
+      <option value="demographics">Solo anagrafica</option>
+    </select>
   </div>
 
   <div class="table-wrap">
@@ -218,6 +226,7 @@
           <th>Età</th>
           <th>Genere</th>
           <th>Terapia</th>
+          <th>Stato</th>
           <th>ECR Ansia</th>
           <th>ECR Evit.</th>
           <th>PBS tot.</th>
@@ -225,7 +234,7 @@
         </tr>
       </thead>
       <tbody id="table-body">
-        <tr><td colspan="12" style="text-align:center;padding:32px;color:var(--ink-soft)">Caricamento…</td></tr>
+        <tr><td colspan="13" style="text-align:center;padding:32px;color:var(--ink-soft)">Caricamento…</td></tr>
       </tbody>
     </table>
   </div>
@@ -370,6 +379,7 @@
       relazione: get("relazione") ?? "",
       relazioneDurata: get("relazioneDurata") ?? "",
       convivenza: get("convivenza") ?? "",
+      status: get("status") ?? "",
       igrsSG, igrsSD, igrsOR, igrsSH, igrsBG, ecrAnx, ecrAvo, pbsTotal,
       createdAt,
       raw: f,
@@ -387,11 +397,13 @@
     const q = document.getElementById("search-box").value.toLowerCase();
     const g = document.getElementById("filter-gender").value.toLowerCase();
     const t = document.getElementById("filter-therapy").value.toLowerCase();
+    const st = document.getElementById("filter-status").value.toLowerCase();
 
     return allDocs.map(parseDoc).filter(d => {
       if (q && !`${d.nome} ${d.cognome} ${d.email}`.toLowerCase().includes(q)) return false;
       if (g && d.gender !== g) return false;
       if (t && (d.therapy ?? "").toLowerCase() !== t) return false;
+      if (st && d.status !== st) return false;
       return true;
     }).sort((a, b) => (b.createdAt ?? "") > (a.createdAt ?? "") ? 1 : -1);
   }
@@ -410,6 +422,18 @@
     document.getElementById("stat-avg-ecr-anx").textContent = avg(docs.map(d => d.ecrAnx));
     document.getElementById("stat-avg-ecr-avo").textContent = avg(docs.map(d => d.ecrAvo));
     document.getElementById("stat-avg-pbs").textContent = avg(docs.map(d => d.pbsTotal));
+  }
+
+  function statusBadge(s) {
+    const map = {
+      completed:        ["#d1fae5","#065f46","Completato"],
+      ecr:              ["#fef3c7","#92400e","ECR-R"],
+      igrs:             ["#fef3c7","#92400e","IGRS"],
+      "domande-aperte": ["#fee2e2","#991b1b","Dom. aperte"],
+      demographics:     ["#fee2e2","#991b1b","Anagrafica"],
+    };
+    const [bg, color, label] = map[s] ?? ["#f3f4f6","#4b5563", s || "–"];
+    return `<span class="badge" style="background:${bg};color:${color}">${label}</span>`;
   }
 
   function genderBadge(g) {
@@ -434,7 +458,7 @@
   function renderTable(docs) {
     const tbody = document.getElementById("table-body");
     if (!docs.length) {
-      tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;padding:32px;color:var(--ink-soft)">Nessun soggetto trovato.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;padding:32px;color:var(--ink-soft)">Nessun soggetto trovato.</td></tr>`;
       return;
     }
     tbody.innerHTML = docs.map((d, i) => `
@@ -447,6 +471,7 @@
         <td>${d.age ?? "–"}</td>
         <td>${genderBadge(d.gender)}</td>
         <td>${d.therapy || "–"}</td>
+        <td>${statusBadge(d.status)}</td>
         ${scoreCell(d.ecrAnx, 7)}
         ${scoreCell(d.ecrAvo, 7)}
         ${scoreCell(d.pbsTotal, 413)}
@@ -478,6 +503,7 @@
         <span class="k">Cresciuto/a (regione)</span><span class="v">${d.grewUpPlace || "–"}</span>
         <span class="k">Studi/Lavoro (regione)</span><span class="v">${d.studyPlace || "–"}</span>
         <span class="k">Terapia</span>      <span class="v">${d.therapy || "–"}</span>
+        <span class="k">Stato</span>         <span class="v">${statusBadge(d.status)}</span>
         <span class="k">Orient. sessuale</span><span class="v">${d.sexualOrientation || "–"}</span>
         <span class="k">Relazione stabile</span><span class="v">${d.relazione || "–"}</span>
         ${d.relazione === "si" ? `
@@ -512,7 +538,7 @@
   });
 
   // ── Filtri ────────────────────────────────────────────────────────────────
-  ["search-box", "filter-gender", "filter-therapy"].forEach(id => {
+  ["search-box", "filter-gender", "filter-therapy", "filter-status"].forEach(id => {
     document.getElementById(id).addEventListener("input", renderAll);
   });
 

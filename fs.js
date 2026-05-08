@@ -1,0 +1,67 @@
+// Shared Firestore REST utilities
+export const FIREBASE_API_KEY = "AIzaSyACw47qEsgsMCC2tUlbPEu81f-1ENRB0-U";
+export const FIRESTORE_BASE   = "https://firestore.googleapis.com/v1/projects/questionario-9b487/databases/(default)/documents";
+const COLLECTION = "responses";
+
+export function toFSVal(v) {
+  if (v === null || v === undefined) return { nullValue: null };
+  if (typeof v === "boolean")        return { booleanValue: v };
+  if (typeof v === "number")         return { integerValue: String(v) };
+  return { stringValue: String(v) };
+}
+
+function buildFields(obj) {
+  const fields = {};
+  for (const [k, v] of Object.entries(obj)) fields[k] = toFSVal(v);
+  return fields;
+}
+
+/**
+ * Create a new document with the given data.
+ * Returns the document ID (stored in sessionStorage as "firestoreDocId").
+ */
+export async function createDoc(data) {
+  const url = `${FIRESTORE_BASE}/${COLLECTION}?key=${FIREBASE_API_KEY}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ fields: buildFields(data) }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error?.message ?? "HTTP " + res.status);
+  }
+  const doc = await res.json();
+  // doc.name = "projects/.../documents/responses/DOCID"
+  const docId = doc.name.split("/").pop();
+  sessionStorage.setItem("firestoreDocId", docId);
+  return docId;
+}
+
+/**
+ * Patch (merge) an existing document with new data.
+ * Reads the docId from sessionStorage. If no docId, falls back to createDoc.
+ * Uses ?currentDocument.exists=true so the patch only touches existing docs.
+ */
+export async function patchDoc(data) {
+  const docId = sessionStorage.getItem("firestoreDocId");
+  if (!docId) {
+    // Fallback: create
+    return createDoc(data);
+  }
+  const fields = buildFields(data);
+  // Build updateMask from the keys
+  const mask = Object.keys(fields)
+    .map(k => `updateMask.fieldPaths=${encodeURIComponent(k)}`)
+    .join("&");
+  const url = `${FIRESTORE_BASE}/${COLLECTION}/${docId}?key=${FIREBASE_API_KEY}&${mask}`;
+  const res = await fetch(url, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ fields }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error?.message ?? "HTTP " + res.status);
+  }
+}

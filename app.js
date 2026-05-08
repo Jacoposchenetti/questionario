@@ -104,9 +104,14 @@ document.getElementById("btn-next-2").addEventListener("click", () => {
 
 document.getElementById("btn-back-3").addEventListener("click", () => showStep(2));
 
+// --- Firestore partial save --------------------------------------------------
+
+import { createDoc } from "./fs.js";
+
+
 // --- Submit ------------------------------------------------------------------
 
-document.getElementById("main-form").addEventListener("submit", (e) => {
+document.getElementById("main-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const err = validateStep3();
   if (err) { showErr("err-3", err); return; }
@@ -114,6 +119,7 @@ document.getElementById("main-form").addEventListener("submit", (e) => {
 
   const submitBtn = document.getElementById("submit-btn");
   submitBtn.disabled = true;
+  submitBtn.textContent = "Salvataggio...";
 
   const therapy = document.querySelector("[name='hadTherapy']:checked").value;
 
@@ -134,12 +140,16 @@ document.getElementById("main-form").addEventListener("submit", (e) => {
     sexualOrientation: val("sexualOrientation"),
     consent:           true,
     source:            "github-pages",
+    status:            "demographics",
   };
 
   if (isStudent()) {
     payload.studyPlace = val("studyPlace");
     payload.studyField = val("studyField");
   }
+
+  try { await createDoc(payload); }
+  catch (ex) { console.warn("Firestore create failed, continuing:", ex.message); }
 
   sessionStorage.setItem("demographicsData", JSON.stringify(payload));
   window.location.href = "domande-aperte.html";
