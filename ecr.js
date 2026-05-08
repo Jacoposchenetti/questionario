@@ -39,7 +39,7 @@ const QUESTIONS = [
   "Il mio partner sembra accorgersi di me solo quando sono arrabbiato/a.",
 ];
 
-const TIMER_SECONDS = 6;
+const TIMER_SECONDS = 0; // ← rimetti 6 dopo il test
 let currentQ = 0;
 const answers = new Array(QUESTIONS.length).fill(null);
 let timerInterval = null;
@@ -87,6 +87,7 @@ function skipTimer() {
 
 function startTimer() {
   clearInterval(timerInterval);
+  if (TIMER_SECONDS <= 0) { skipTimer(); return; }
   timerDone = false;
   nextBtn.disabled = true;
   let remaining = TIMER_SECONDS;
