@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Questionario tesi — Domande aperte</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Fraunces:opsz,wght@9..144,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .open-q { margin-bottom: 32px; }
+    .open-q label {
+      display: block;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    .open-q textarea {
+      width: 100%;
+      min-height: 140px;
+      border: 2px solid var(--border, #d4e0dc);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+      transition: border-color 200ms;
+      background: #fff;
+      color: var(--ink);
+    }
+    .open-q textarea:focus { border-color: var(--accent, #1f7a61); }
+    .open-q textarea.invalid { border-color: #c0392b; }
+    .char-counter {
+      font-size: 0.78rem;
+      color: var(--ink-soft, #5a6a65);
+      text-align: right;
+      margin-top: 5px;
+    }
+    .char-counter.ok { color: #27ae60; font-weight: 600; }
+    .char-counter.warn { color: #c0392b; }
+    .open-err {
+      font-size: 0.82rem;
+      color: #c0392b;
+      min-height: 18px;
+      margin-top: 4px;
+    }
+    .nav-btns { display: flex; gap: 12px; margin-top: 8px; }
+    .btn-back {
+      background: transparent;
+      border: 2px solid var(--accent, #1f7a61);
+      color: var(--accent, #1f7a61);
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity 150ms;
+    }
+    .btn-back:hover { opacity: 0.75; }
+  </style>
+</head>
+<body>
+  <div class="bg-glow bg-glow-a" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-b" aria-hidden="true"></div>
+
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow">Studio universitario</p>
+      <h1>Questionario tesi</h1>
+      <p class="subtitle">Rispondi liberamente alle domande seguenti. Ogni risposta deve essere di almeno 200 caratteri.</p>
+    </header>
+
+    <nav class="stepper" aria-label="Fasi del questionario">
+      <div class="stepper-step done">
+        <div class="stepper-dot">✓</div>
+        <span class="stepper-lbl">Dati demografici</span>
+      </div>
+      <div class="stepper-conn done"></div>
+      <div class="stepper-step active">
+        <div class="stepper-dot">2</div>
+        <span class="stepper-lbl">Domande aperte</span>
+      </div>
+      <div class="stepper-conn"></div>
+      <div class="stepper-step">
+        <div class="stepper-dot">3</div>
+        <span class="stepper-lbl">IGRS</span>
+      </div>
+      <div class="stepper-conn"></div>
+      <div class="stepper-step">
+        <div class="stepper-dot">4</div>
+        <span class="stepper-lbl">ECR-R</span>
+      </div>
+      <div class="stepper-conn"></div>
+      <div class="stepper-step">
+        <div class="stepper-dot">5</div>
+        <span class="stepper-lbl">PBS</span>
+      </div>
+    </nav>
+
+    <div class="card">
+      <div class="open-q">
+        <label for="rapporto-padre">1. Che rapporto hai con tuo padre?</label>
+        <textarea id="rapporto-padre" placeholder="Descrivi liberamente il tuo rapporto con tuo padre…" maxlength="3000"></textarea>
+        <div class="char-counter" id="cnt-padre">0 / 200 caratteri minimi</div>
+        <p class="open-err" id="err-padre"></p>
+      </div>
+
+      <div class="open-q">
+        <label for="rapporto-madre">2. Che rapporto hai con tua madre?</label>
+        <textarea id="rapporto-madre" placeholder="Descrivi liberamente il tuo rapporto con tua madre…" maxlength="3000"></textarea>
+        <div class="char-counter" id="cnt-madre">0 / 200 caratteri minimi</div>
+        <p class="open-err" id="err-madre"></p>
+      </div>
+
+      <p class="open-err" id="err-global"></p>
+
+      <div class="nav-btns">
+        <button class="btn-back" id="btn-back">← Indietro</button>
+        <button class="btn" id="btn-avanti">Avanti →</button>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="domande-aperte.js"></script>
+</body>
+</html>

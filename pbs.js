@@ -166,14 +166,17 @@ async function submitAll() {
   nextBtn.disabled = true;
   nextBtn.textContent = "Salvataggio...";
 
-  const demographics = JSON.parse(sessionStorage.getItem("demographicsData") ?? "{}");
-  const igrsData     = JSON.parse(sessionStorage.getItem("igrsData") ?? "{}");
-  const ecrData      = JSON.parse(sessionStorage.getItem("ecrData") ?? "{}");
+  const demographics      = JSON.parse(sessionStorage.getItem("demographicsData") ?? "{}");
+  const domandeAperte    = JSON.parse(sessionStorage.getItem("domandeAperteData") ?? "{}");
+  const igrsData         = JSON.parse(sessionStorage.getItem("igrsData") ?? "{}");
+  const ecrData          = JSON.parse(sessionStorage.getItem("ecrData") ?? "{}");
 
   const fields = {};
 
   // Dati demografici
   for (const [k, v] of Object.entries(demographics)) fields[k] = toFSVal(v);
+  // Domande aperte
+  for (const [k, v] of Object.entries(domandeAperte)) fields[k] = toFSVal(v);
   // Risposte IGRS
   for (const [k, v] of Object.entries(igrsData)) fields[k] = toFSVal(v);
   // Risposte ECR-R + dati relazione
@@ -194,6 +197,7 @@ async function submitAll() {
       throw new Error(err?.error?.message ?? "HTTP " + res.status);
     }
     sessionStorage.removeItem("demographicsData");
+    sessionStorage.removeItem("domandeAperteData");
     sessionStorage.removeItem("igrsData");
     sessionStorage.removeItem("ecrData");
     document.querySelector(".page").innerHTML = `

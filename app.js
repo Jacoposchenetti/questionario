@@ -142,5 +142,5 @@ document.getElementById("main-form").addEventListener("submit", (e) => {
   }
 
   sessionStorage.setItem("demographicsData", JSON.stringify(payload));
-  window.location.href = "igrs.html";
+  window.location.href = "domande-aperte.html";
 });
