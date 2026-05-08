@@ -73,7 +73,7 @@
     <header class="hero">
       <p class="eyebrow">Studio universitario</p>
       <h1>Questionario tesi</h1>
-      <p class="subtitle">Rispondi liberamente alle domande seguenti. Ogni risposta deve essere di almeno 200 caratteri.</p>
+      <p class="subtitle">Rispondi liberamente alle domande seguenti. Ogni risposta deve essere di almeno 150 caratteri.</p>
     </header>
 
     <nav class="stepper" aria-label="Fasi del questionario">
@@ -103,18 +103,23 @@
       </div>
     </nav>
 
+    <div class="progress-wrap" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
+      <div class="progress-bar" style="width:20%"></div>
+    </div>
+    <p class="progress-label">Fase 2 di 5</p>
+
     <div class="card">
       <div class="open-q">
         <label for="rapporto-padre">1. Che rapporto hai con tuo padre?</label>
         <textarea id="rapporto-padre" placeholder="Descrivi liberamente il tuo rapporto con tuo padre…" maxlength="3000"></textarea>
-        <div class="char-counter" id="cnt-padre">0 / 200 caratteri minimi</div>
+        <div class="char-counter" id="cnt-padre">0 / 150 caratteri minimi</div>
         <p class="open-err" id="err-padre"></p>
       </div>
 
       <div class="open-q">
         <label for="rapporto-madre">2. Che rapporto hai con tua madre?</label>
         <textarea id="rapporto-madre" placeholder="Descrivi liberamente il tuo rapporto con tua madre…" maxlength="3000"></textarea>
-        <div class="char-counter" id="cnt-madre">0 / 200 caratteri minimi</div>
+        <div class="char-counter" id="cnt-madre">0 / 150 caratteri minimi</div>
         <p class="open-err" id="err-madre"></p>
       </div>
 

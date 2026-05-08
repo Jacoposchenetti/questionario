@@ -1,4 +1,4 @@
-const MIN_CHARS = 200;
+const MIN_CHARS = 150;
 
 const padreTa  = document.getElementById("rapporto-padre");
 const madreTa  = document.getElementById("rapporto-madre");
