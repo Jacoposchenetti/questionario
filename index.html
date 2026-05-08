@@ -137,11 +137,31 @@
           <h2 id="s2-title">Origini e formazione</h2>
           <div class="field-grid">
 
-            <label class="field col-2"><span>Dove sei nato/a? <em>(città o paese)</em></span>
-              <input type="text" id="birthPlace" name="birthPlace" maxlength="120" placeholder="es. Roma, Italia" /></label>
+            <label class="field col-2"><span>In quale regione sei nato/a?</span>
+              <select id="birthPlace" name="birthPlace" required>
+                <option value="">Seleziona</option>
+                <option>Abruzzo</option><option>Basilicata</option><option>Calabria</option>
+                <option>Campania</option><option>Emilia-Romagna</option><option>Friuli-Venezia Giulia</option>
+                <option>Lazio</option><option>Liguria</option><option>Lombardia</option>
+                <option>Marche</option><option>Molise</option><option>Piemonte</option>
+                <option>Puglia</option><option>Sardegna</option><option>Sicilia</option>
+                <option>Toscana</option><option>Trentino-Alto Adige</option><option>Umbria</option>
+                <option>Valle d'Aosta</option><option>Veneto</option>
+                <option>Estero</option>
+              </select></label>
 
-            <label class="field col-2"><span>Dove sei cresciuto/a? <em>(città o paese)</em></span>
-              <input type="text" id="grewUpPlace" name="grewUpPlace" maxlength="120" placeholder="es. Milano, Italia" /></label>
+            <label class="field col-2"><span>In quale regione sei cresciuto/a?</span>
+              <select id="grewUpPlace" name="grewUpPlace" required>
+                <option value="">Seleziona</option>
+                <option>Abruzzo</option><option>Basilicata</option><option>Calabria</option>
+                <option>Campania</option><option>Emilia-Romagna</option><option>Friuli-Venezia Giulia</option>
+                <option>Lazio</option><option>Liguria</option><option>Lombardia</option>
+                <option>Marche</option><option>Molise</option><option>Piemonte</option>
+                <option>Puglia</option><option>Sardegna</option><option>Sicilia</option>
+                <option>Toscana</option><option>Trentino-Alto Adige</option><option>Umbria</option>
+                <option>Valle d'Aosta</option><option>Veneto</option>
+                <option>Estero</option>
+              </select></label>
 
             <label class="field col-2"><span>Titolo di studio della madre</span>
               <select id="motherEducation" name="motherEducation" required>
@@ -176,8 +196,18 @@
             <h3>Informazioni sugli studi</h3>
             <div class="field-grid">
 
-              <label class="field col-2"><span>Dove studi? <em>(città, università)</em></span>
-                <input type="text" id="studyPlace" name="studyPlace" maxlength="120" placeholder="es. Trento, Università di Trento" /></label>
+              <label class="field col-2"><span>In quale regione studi/lavori?</span>
+                <select id="studyPlace" name="studyPlace">
+                  <option value="">Seleziona</option>
+                  <option>Abruzzo</option><option>Basilicata</option><option>Calabria</option>
+                  <option>Campania</option><option>Emilia-Romagna</option><option>Friuli-Venezia Giulia</option>
+                  <option>Lazio</option><option>Liguria</option><option>Lombardia</option>
+                  <option>Marche</option><option>Molise</option><option>Piemonte</option>
+                  <option>Puglia</option><option>Sardegna</option><option>Sicilia</option>
+                  <option>Toscana</option><option>Trentino-Alto Adige</option><option>Umbria</option>
+                  <option>Valle d'Aosta</option><option>Veneto</option>
+                  <option>Estero</option>
+                </select></label>
 
               <label class="field col-2"><span>Cosa studi?</span>
                 <input type="text" id="studyField" name="studyField" maxlength="120" placeholder="es. Psicologia clinica" /></label>

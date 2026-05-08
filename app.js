@@ -64,12 +64,12 @@ function validateStep1() {
 }
 
 function validateStep2() {
-  if (!val("birthPlace"))      return "Inserisci il luogo di nascita.";
-  if (!val("grewUpPlace"))     return "Inserisci il luogo dove sei cresciuto/a.";
+  if (!val("birthPlace"))      return "Seleziona la regione di nascita.";
+  if (!val("grewUpPlace"))     return "Seleziona la regione dove sei cresciuto/a.";
   if (!val("motherEducation")) return "Seleziona il titolo di studio della madre.";
   if (!val("fatherEducation")) return "Seleziona il titolo di studio del padre.";
   if (isStudent()) {
-    if (!val("studyPlace")) return "Inserisci il luogo dove studi.";
+    if (!val("studyPlace")) return "Seleziona la regione dove studi/lavori.";
     if (!val("studyField")) return "Inserisci il corso di studi.";
   }
   return null;

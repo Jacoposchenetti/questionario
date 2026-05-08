@@ -366,6 +366,7 @@
       sexualOrientation: get("sexualOrientation") ?? "",
       birthPlace: get("birthPlace") ?? "",
       grewUpPlace: get("grewUpPlace") ?? "",
+      studyPlace: get("studyPlace") ?? "",
       relazione: get("relazione") ?? "",
       relazioneDurata: get("relazioneDurata") ?? "",
       convivenza: get("convivenza") ?? "",
@@ -473,8 +474,9 @@
         <span class="k">Genere</span>       <span class="v">${d.gender || "–"}</span>
         <span class="k">Istruzione</span>   <span class="v">${d.education || "–"}</span>
         <span class="k">Occupazione</span>  <span class="v">${d.occupation || "–"}</span>
-        <span class="k">Nato/a a</span>     <span class="v">${d.birthPlace || "–"}</span>
-        <span class="k">Cresciuto/a a</span><span class="v">${d.grewUpPlace || "–"}</span>
+        <span class="k">Nato/a (regione)</span>     <span class="v">${d.birthPlace || "–"}</span>
+        <span class="k">Cresciuto/a (regione)</span><span class="v">${d.grewUpPlace || "–"}</span>
+        <span class="k">Studi/Lavoro (regione)</span><span class="v">${d.studyPlace || "–"}</span>
         <span class="k">Terapia</span>      <span class="v">${d.therapy || "–"}</span>
         <span class="k">Orient. sessuale</span><span class="v">${d.sexualOrientation || "–"}</span>
         <span class="k">Relazione stabile</span><span class="v">${d.relazione || "–"}</span>
@@ -521,7 +523,7 @@
 
     // intestazioni
     const demoCols = ["id","createdAt","nome","cognome","email","age","gender",
-                      "education","occupation","birthPlace","grewUpPlace",
+                      "education","occupation","birthPlace","grewUpPlace","studyPlace",
                       "therapy","sexualOrientation","relazione","relazioneDurata","convivenza"];
     const igrsCols = Array.from({length:20}, (_, i) => "igrs_q"+(i+1));
     const ecrCols  = Array.from({length:36}, (_, i) => "ecr_q"+(i+1));
