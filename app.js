@@ -29,7 +29,7 @@ const studentFields       = document.getElementById("student-fields");
 const therapyDurationWrap = document.getElementById("therapy-duration-wrap");
 
 function isStudent() {
-  return occupationSel.value === "studente";
+  return ["studente", "studente-lavoratore"].includes(occupationSel.value);
 }
 
 occupationSel.addEventListener("change", () => {
