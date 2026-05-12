@@ -163,6 +163,8 @@
 <div id="login-screen">
   <div class="login-card">
     <h1>🔒 Area Admin</h1>
+    <label for="email-input">Email</label>
+    <input type="email" id="email-input" placeholder="admin@esempio.it" autocomplete="email" style="margin-bottom:12px" />
     <label for="pwd-input">Password</label>
     <input type="password" id="pwd-input" placeholder="••••••••" autocomplete="current-password" />
     <p id="login-err"></p>
@@ -250,34 +252,57 @@
 </div>
 
 <script type="module">
-  const ADMIN_PASSWORD = "admin2024tesi";
-  const FIREBASE_API_KEY = "AIzaSyACw47qEsgsMCC2tUlbPEu81f-1ENRB0-U";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyACw47qEsgsMCC2tUlbPEu81f-1ENRB0-U",
+    authDomain:        "questionario-9b487.firebaseapp.com",
+    projectId:         "questionario-9b487",
+  };
   const FIRESTORE_BASE = "https://firestore.googleapis.com/v1/projects/questionario-9b487/databases/(default)/documents";
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  let idToken = null;
 
   // ── Login ──────────────────────────────────────────────────────────────────
   const loginScreen = document.getElementById("login-screen");
   const dashboard   = document.getElementById("dashboard");
+  const emailInput  = document.getElementById("email-input");
   const pwdInput    = document.getElementById("pwd-input");
   const loginErr    = document.getElementById("login-err");
+  const btnLogin    = document.getElementById("btn-login");
 
-  document.getElementById("btn-login").addEventListener("click", tryLogin);
+  btnLogin.addEventListener("click", tryLogin);
   pwdInput.addEventListener("keydown", e => { if (e.key === "Enter") tryLogin(); });
 
-  function tryLogin() {
-    if (pwdInput.value === ADMIN_PASSWORD) {
+  async function tryLogin() {
+    loginErr.textContent = "";
+    btnLogin.disabled = true;
+    btnLogin.textContent = "Accesso…";
+    try {
+      const cred = await signInWithEmailAndPassword(auth, emailInput.value.trim(), pwdInput.value);
+      idToken = await cred.user.getIdToken();
       loginScreen.style.display = "none";
       dashboard.style.display = "block";
       loadData();
-    } else {
-      loginErr.textContent = "Password errata.";
+    } catch {
+      loginErr.textContent = "Credenziali non valide.";
       pwdInput.value = "";
       pwdInput.focus();
+    } finally {
+      btnLogin.disabled = false;
+      btnLogin.textContent = "Accedi";
     }
   }
 
-  document.getElementById("btn-logout").addEventListener("click", () => {
+  document.getElementById("btn-logout").addEventListener("click", async () => {
+    await signOut(auth);
+    idToken = null;
     dashboard.style.display = "none";
     loginScreen.style.display = "flex";
+    emailInput.value = "";
     pwdInput.value = "";
     loginErr.textContent = "";
   });
@@ -289,14 +314,15 @@
     setStatus("loading");
     allDocs = [];
     try {
-      let url = `${FIRESTORE_BASE}/responses?key=${FIREBASE_API_KEY}&pageSize=300`;
+      if (auth.currentUser) idToken = await auth.currentUser.getIdToken();
+      let url = `${FIRESTORE_BASE}/responses?pageSize=300`;
       while (url) {
-        const res = await fetch(url);
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${idToken}` } });
         if (!res.ok) throw new Error("HTTP " + res.status);
         const data = await res.json();
         if (data.documents) allDocs.push(...data.documents);
         url = data.nextPageToken
-          ? `${FIRESTORE_BASE}/responses?key=${FIREBASE_API_KEY}&pageSize=300&pageToken=${data.nextPageToken}`
+          ? `${FIRESTORE_BASE}/responses?pageSize=300&pageToken=${data.nextPageToken}`
           : null;
       }
       setStatus("ok", allDocs.length + " soggetti caricati");
