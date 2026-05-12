@@ -195,6 +195,7 @@ h1 {
 input, select, button { font: inherit; }
 
 input[type="text"],
+input[type="email"],
 input[type="number"],
 select {
   width: 100%;
