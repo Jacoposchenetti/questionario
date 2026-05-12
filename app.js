@@ -2,7 +2,7 @@
 
 // --- Step navigation ---------------------------------------------------------
 
-const TOTAL_STEPS   = 3;
+const TOTAL_STEPS   = 4;
 const panels        = document.querySelectorAll(".step-panel");
 const progressBar   = document.getElementById("progress-bar");
 const progressLabel = document.getElementById("progress-label");
@@ -29,7 +29,7 @@ const studentFields       = document.getElementById("student-fields");
 const therapyDurationWrap = document.getElementById("therapy-duration-wrap");
 
 function isStudent() {
-  return ["studente", "studente-lavoratore"].includes(occupationSel.value);
+  return occupationSel.value === "studente";
 }
 
 occupationSel.addEventListener("change", () => {
@@ -68,8 +68,8 @@ function validateStep2() {
   if (!val("grewUpPlace"))     return "Seleziona la regione dove sei cresciuto/a.";
   if (!val("motherEducation")) return "Seleziona il titolo di studio della madre.";
   if (!val("fatherEducation")) return "Seleziona il titolo di studio del padre.";
+  if (!val("studyPlace"))      return "Seleziona la regione in cui vivi.";
   if (isStudent()) {
-    if (!val("studyPlace")) return "Seleziona la regione dove studi/lavori.";
     if (!val("studyField")) return "Inserisci il corso di studi.";
   }
   return null;
@@ -104,47 +104,83 @@ document.getElementById("btn-next-2").addEventListener("click", () => {
 
 document.getElementById("btn-back-3").addEventListener("click", () => showStep(2));
 
+document.getElementById("btn-next-3").addEventListener("click", () => {
+  const err = validateStep3();
+  if (err) { showErr("err-3", err); return; }
+  clearErr("err-3");
+  showStep(4);
+});
+
+document.getElementById("btn-back-4").addEventListener("click", () => showStep(3));
+
 // --- Firestore partial save --------------------------------------------------
 
 import { createDoc } from "./fs.js";
 
+// --- Validation step 4 -------------------------------------------------------
+
+function validateStep4() {
+  const fields = [
+    "ethnicity", "socioeconomicStatus", "physicalDisease",
+    "psychotropicDisorders", "substanceAbuse", "childhoodAbuse",
+    "childhoodNeglect", "familyProblems", "caregivingRole",
+    "familySeparationDistress", "familyCaregivingDifficulty",
+  ];
+  for (const name of fields) {
+    if (!document.querySelector(`[name='${name}']:checked`))
+      return "Rispondi a tutte le domande prima di continuare.";
+  }
+  return null;
+}
 
 // --- Submit ------------------------------------------------------------------
 
 document.getElementById("main-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const err = validateStep3();
-  if (err) { showErr("err-3", err); return; }
-  clearErr("err-3");
+  const err = validateStep4();
+  if (err) { showErr("err-4", err); return; }
+  clearErr("err-4");
 
   const submitBtn = document.getElementById("submit-btn");
   submitBtn.disabled = true;
   submitBtn.textContent = "Salvataggio...";
 
   const therapy = document.querySelector("[name='hadTherapy']:checked").value;
+  const checkedVal = (name) => document.querySelector(`[name='${name}']:checked`)?.value ?? null;
 
   const payload = {
-    nome:              val("nome"),
-    cognome:           val("cognome"),
-    email:             val("email"),
-    age:               Number(val("age")),
-    gender:            val("gender"),
-    education:         val("education"),
-    occupation:        val("occupation"),
-    birthPlace:        val("birthPlace"),
-    grewUpPlace:       val("grewUpPlace"),
-    motherEducation:   val("motherEducation"),
-    fatherEducation:   val("fatherEducation"),
-    hadTherapy:        therapy === "si",
-    therapyDuration:   therapy === "si" ? val("therapyDuration") : null,
-    sexualOrientation: val("sexualOrientation"),
-    consent:           true,
-    source:            "github-pages",
-    status:            "demographics",
+    nome:                       val("nome"),
+    cognome:                    val("cognome"),
+    email:                      val("email"),
+    age:                        Number(val("age")),
+    gender:                     val("gender"),
+    education:                  val("education"),
+    occupation:                 val("occupation"),
+    birthPlace:                 val("birthPlace"),
+    grewUpPlace:                val("grewUpPlace"),
+    studyPlace:                 val("studyPlace"),
+    motherEducation:            val("motherEducation"),
+    fatherEducation:            val("fatherEducation"),
+    hadTherapy:                 therapy === "si",
+    therapyDuration:            therapy === "si" ? val("therapyDuration") : null,
+    sexualOrientation:          val("sexualOrientation"),
+    ethnicity:                  checkedVal("ethnicity"),
+    socioeconomicStatus:        checkedVal("socioeconomicStatus"),
+    physicalDisease:            checkedVal("physicalDisease") === "si",
+    psychotropicDisorders:      checkedVal("psychotropicDisorders") === "si",
+    substanceAbuse:             checkedVal("substanceAbuse") === "si",
+    childhoodAbuse:             checkedVal("childhoodAbuse") === "si",
+    childhoodNeglect:           checkedVal("childhoodNeglect") === "si",
+    familyProblems:             checkedVal("familyProblems") === "si",
+    caregivingRole:             checkedVal("caregivingRole") === "si",
+    familySeparationDistress:   checkedVal("familySeparationDistress") === "si",
+    familyCaregivingDifficulty: checkedVal("familyCaregivingDifficulty") === "si",
+    consent:                    true,
+    source:                     "github-pages",
+    status:                     "demographics",
   };
 
   if (isStudent()) {
-    payload.studyPlace = val("studyPlace");
     payload.studyField = val("studyField");
   }
 

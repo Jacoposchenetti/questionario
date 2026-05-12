@@ -41,10 +41,10 @@
           <span class="stepper-lbl">PBS</span>
         </div>
       </nav>
-      <div class="progress-wrap" role="progressbar" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar" id="progress-bar" style="width:33%"></div>
+      <div class="progress-wrap" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar" id="progress-bar" style="width:25%"></div>
       </div>
-      <p class="progress-label" id="progress-label">Sezione 1 di 3</p>
+      <p class="progress-label" id="progress-label">Sezione 1 di 4</p>
 
       <form id="main-form" novalidate>
 
@@ -114,9 +114,11 @@
             <label class="field col-2"><span>Occupazione</span>
               <select id="occupation" name="occupation" required>
                 <option value="">Seleziona</option>
-                <option value="studente">Studente</option>
-                <option value="studente-lavoratore">Studente lavoratore</option>
-                <option value="lavoratore">Lavoratore</option>
+                <option value="lavoratore-dipendente">Lavoratore dipendente</option>
+                <option value="lavoratore-autonomo">Lavoratore autonomo</option>
+                <option value="studente">Studente/ssa</option>
+                <option value="disoccupato">Disoccupato/a</option>
+                <option value="pensionato">Pensionato/a</option>
               </select></label>
 
           </div>
@@ -189,25 +191,26 @@
                 <option value="non-so">Non so / Non disponibile</option>
               </select></label>
 
+            <label class="field col-2">
+              <span>In quale regione vivi? <em>se sei fuori sede indica dove</em></span>
+              <select id="studyPlace" name="studyPlace" required>
+                <option value="">Seleziona</option>
+                <option>Abruzzo</option><option>Basilicata</option><option>Calabria</option>
+                <option>Campania</option><option>Emilia-Romagna</option><option>Friuli-Venezia Giulia</option>
+                <option>Lazio</option><option>Liguria</option><option>Lombardia</option>
+                <option>Marche</option><option>Molise</option><option>Piemonte</option>
+                <option>Puglia</option><option>Sardegna</option><option>Sicilia</option>
+                <option>Toscana</option><option>Trentino-Alto Adige</option><option>Umbria</option>
+                <option>Valle d'Aosta</option><option>Veneto</option>
+                <option>Estero</option>
+              </select></label>
+
           </div>
 
           <div id="student-fields" hidden>
             <hr />
             <h3>Informazioni sugli studi</h3>
             <div class="field-grid">
-
-              <label class="field col-2"><span>In quale regione studi/lavori?</span>
-                <select id="studyPlace" name="studyPlace">
-                  <option value="">Seleziona</option>
-                  <option>Abruzzo</option><option>Basilicata</option><option>Calabria</option>
-                  <option>Campania</option><option>Emilia-Romagna</option><option>Friuli-Venezia Giulia</option>
-                  <option>Lazio</option><option>Liguria</option><option>Lombardia</option>
-                  <option>Marche</option><option>Molise</option><option>Piemonte</option>
-                  <option>Puglia</option><option>Sardegna</option><option>Sicilia</option>
-                  <option>Toscana</option><option>Trentino-Alto Adige</option><option>Umbria</option>
-                  <option>Valle d'Aosta</option><option>Veneto</option>
-                  <option>Estero</option>
-                </select></label>
 
               <label class="field col-2"><span>Cosa studi?</span>
                 <input type="text" id="studyField" name="studyField" maxlength="120" placeholder="es. Psicologia clinica" /></label>
@@ -269,7 +272,95 @@
           <div class="actions">
             <div class="nav-row">
               <button type="button" id="btn-back-3" class="btn-secondary">← Indietro</button>
-              <button type="submit" id="submit-btn">Avanti →</button>
+              <button type="button" id="btn-next-3">Avanti →</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 4 -->
+        <section class="card step-panel" data-panel="4" aria-labelledby="s4-title" hidden>
+          <h2 id="s4-title">Scheda sociodemografica</h2>
+          <div class="field-stack">
+
+            <fieldset class="radio-group">
+              <legend>A quale etnia appartieni?</legend>
+              <label class="radio-label"><input type="radio" name="ethnicity" value="caucasico" /> Caucasico</label>
+              <label class="radio-label"><input type="radio" name="ethnicity" value="afroamericano" /> Afro/americano</label>
+              <label class="radio-label"><input type="radio" name="ethnicity" value="latinoamericano" /> Latino/americano</label>
+              <label class="radio-label"><input type="radio" name="ethnicity" value="asiatico" /> Asiatico</label>
+              <label class="radio-label"><input type="radio" name="ethnicity" value="altro" /> Altro</label>
+            </fieldset>
+
+            <fieldset class="radio-group">
+              <legend>Qual è lo status socio-economico della tua famiglia?</legend>
+              <label class="radio-label"><input type="radio" name="socioeconomicStatus" value="basso" /> Basso</label>
+              <label class="radio-label"><input type="radio" name="socioeconomicStatus" value="medio-basso" /> Medio-basso</label>
+              <label class="radio-label"><input type="radio" name="socioeconomicStatus" value="medio" /> Medio</label>
+              <label class="radio-label"><input type="radio" name="socioeconomicStatus" value="medio-alto" /> Medio-Alto</label>
+              <label class="radio-label"><input type="radio" name="socioeconomicStatus" value="alto" /> Alto</label>
+            </fieldset>
+
+            <fieldset class="radio-group">
+              <legend>Soffri di malattie fisiche invalidanti? <em>(ad es. distrofia, sclerosi multipla, paraplegia, morbo di Parkinson, …)</em></legend>
+              <label class="radio-label"><input type="radio" name="physicalDisease" value="si" /> Sì</label>
+              <label class="radio-label"><input type="radio" name="physicalDisease" value="no" /> No</label>
+            </fieldset>
+
+            <fieldset class="radio-group">
+              <legend>Soffri di disturbi che giustifichino l'utilizzo di psicofarmaci?</legend>
+              <label class="radio-label"><input type="radio" name="psychotropicDisorders" value="si" /> Sì</label>
+              <label class="radio-label"><input type="radio" name="psychotropicDisorders" value="no" /> No</label>
+            </fieldset>
+
+            <fieldset class="radio-group">
+              <legend>Fai attualmente abuso di sostanze stupefacenti o alcool?</legend>
+              <label class="radio-label"><input type="radio" name="substanceAbuse" value="si" /> Sì</label>
+              <label class="radio-label"><input type="radio" name="substanceAbuse" value="no" /> No</label>
+            </fieldset>
+
+            <fieldset class="radio-group">
+              <legend>Durante la tua infanzia o adolescenza, sei mai stata/o vittima di abusi emotivi, fisici, sessuali (insulti e improperi, sei stato/a picchiato/a o malmenato/a, vittima di abuso sessuale)?</legend>
+              <label class="radio-label"><input type="radio" name="childhoodAbuse" value="si" /> Sì</label>
+              <label class="radio-label"><input type="radio" name="childhoodAbuse" value="no" /> No</label>
+            </fieldset>
+
+            <fieldset class="radio-group">
+              <legend>Durante la tua infanzia o adolescenza, sei mai stata/o vittima di trascuratezza (non ti venivano fornite cure, prestate attenzioni, fornito aiuto)?</legend>
+              <label class="radio-label"><input type="radio" name="childhoodNeglect" value="si" /> Sì</label>
+              <label class="radio-label"><input type="radio" name="childhoodNeglect" value="no" /> No</label>
+            </fieldset>
+
+            <fieldset class="radio-group">
+              <legend>Durante la tua infanzia o adolescenza, hai mai avuto la sensazione che i tuoi familiari avessero più problemi emotivi o materiali di te?</legend>
+              <label class="radio-label"><input type="radio" name="familyProblems" value="si" /> Sì</label>
+              <label class="radio-label"><input type="radio" name="familyProblems" value="no" /> No</label>
+            </fieldset>
+
+            <fieldset class="radio-group">
+              <legend>Durante la tua infanzia o adolescenza, ti è mai stato chiesto, o hai mai sentito, di doverti prendere cura di familiari in difficoltà?</legend>
+              <label class="radio-label"><input type="radio" name="caregivingRole" value="si" /> Sì</label>
+              <label class="radio-label"><input type="radio" name="caregivingRole" value="no" /> No</label>
+            </fieldset>
+
+            <fieldset class="radio-group">
+              <legend>Durante la tua infanzia o adolescenza, hai mai avuto la sensazione che i tuoi familiari soffrissero della tua lontananza, o stessero male quando esprimevi idee diverse dalle loro?</legend>
+              <label class="radio-label"><input type="radio" name="familySeparationDistress" value="si" /> Sì</label>
+              <label class="radio-label"><input type="radio" name="familySeparationDistress" value="no" /> No</label>
+            </fieldset>
+
+            <fieldset class="radio-group">
+              <legend>Durante la tua infanzia o adolescenza, hai mai avuto l'impressione che i tuoi familiari avessero difficoltà a prendersi cura di te e/o a capire le tue esigenze?</legend>
+              <label class="radio-label"><input type="radio" name="familyCaregivingDifficulty" value="si" /> Sì</label>
+              <label class="radio-label"><input type="radio" name="familyCaregivingDifficulty" value="no" /> No</label>
+            </fieldset>
+
+          </div>
+
+          <p class="step-error" id="err-4" aria-live="assertive"></p>
+          <div class="actions">
+            <div class="nav-row">
+              <button type="button" id="btn-back-4" class="btn-secondary">← Indietro</button>
+              <button type="submit" id="submit-btn">Invia →</button>
             </div>
             <p id="status" class="status" role="status" aria-live="polite"></p>
           </div>
