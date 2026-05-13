@@ -40,7 +40,7 @@ const QUESTIONS = [
   "Il mio partner sembra accorgersi di me solo quando sono arrabbiato/a.",
 ];
 
-const TIMER_SECONDS = 0; // ← rimetti 6 dopo il test
+const TIMER_SECONDS = 3;
 let currentQ = 0;
 const answers = new Array(QUESTIONS.length).fill(null);
 let timerInterval = null;

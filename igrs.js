@@ -24,7 +24,7 @@ const QUESTIONS = [
   "Chiedere aiuto mi fa sentire molto a disagio",
 ];
 
-const TIMER_SECONDS = 0; // ← rimetti 6 dopo il test
+const TIMER_SECONDS = 3;
 let currentQ = 0;
 const answers = new Array(QUESTIONS.length).fill(null);
 let timerInterval = null;
