@@ -1,6 +1,6 @@
 import { patchDoc } from "./fs.js";
 
-const MIN_CHARS = 150;
+const MIN_CHARS = 100;
 
 const padreTa  = document.getElementById("rapporto-padre");
 const madreTa  = document.getElementById("rapporto-madre");
