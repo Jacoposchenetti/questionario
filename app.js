@@ -177,6 +177,7 @@ document.getElementById("main-form").addEventListener("submit", async (e) => {
     familyCaregivingDifficulty: checkedVal("familyCaregivingDifficulty") === "si",
     consent:                    true,
     source:                     "github-pages",
+    createdAt:                  new Date().toISOString(),
     status:                     "demographics",
   };
 

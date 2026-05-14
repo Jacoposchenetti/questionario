@@ -457,16 +457,54 @@ button:disabled { opacity: 0.65; cursor: not-allowed; }
 
 /* ── Mobile ── */
 @media (max-width: 600px) {
-  .page { margin-top: 24px; }
-  .card { padding: 18px; }
+  .page { margin-top: 20px; margin-bottom: 40px; width: 94vw; }
+  .card { padding: 16px; border-radius: 14px; }
+  .card h2 { font-size: 1.1rem; margin-bottom: 14px; }
   .field-grid { grid-template-columns: 1fr; }
   .col-2 { grid-column: 1; }
-  .step-label { display: none; }
+
+  /* Stepper: hide labels, shrink dots */
+  .stepper { margin: 20px 0 0; }
   .stepper-lbl { display: none; }
   .stepper-dot { width: 24px; height: 24px; font-size: 0.65rem; }
   .stepper-conn { margin-top: 11px; }
-  .likert-circle { width: 44px; height: 44px; font-size: 1.1rem; }
+
+  /* Buttons: stack and full-width */
+  .actions { margin-top: 16px; }
+  .nav-row { flex-direction: column; gap: 8px; }
+  .nav-row button { width: 100%; justify-content: center; }
+
+  /* Likert rows: shrink circles */
+  .likert-circle { width: 42px; height: 42px; font-size: 1rem; }
+  .likert-row { gap: 6px; }
+
+  /* ECR-R 7-point */
+  .likert-row--7 { gap: 4px; }
   .likert-row--7 .likert-circle { width: 36px; height: 36px; font-size: 0.85rem; }
-  .likert-row--8 .likert-circle { width: 32px; height: 32px; font-size: 0.8rem; }
-  .scale-lbl { font-size: 0.62rem; }
+
+  /* PBS 8-point (0–7) */
+  .likert-row--8 { gap: 3px; flex-wrap: wrap; justify-content: center; }
+  .likert-row--8 .likert-circle { width: 38px; height: 38px; font-size: 0.9rem; }
+
+  /* Scale legend */
+  .scale-legend { gap: 2px; margin-bottom: 20px; }
+  .scale-num { width: 28px; height: 28px; font-size: 0.8rem; }
+  .scale-lbl { font-size: 0.58rem; }
+
+  /* Question text */
+  .question-text { font-size: 1rem; }
+
+  /* Consent */
+  .consent { font-size: 0.88rem; }
+
+  /* Radio labels */
+  .radio-label { font-size: 0.9rem; }
+  .radio-group legend { font-size: 0.9rem; }
+}
+
+/* ── Very small phones (≤ 380px) ── */
+@media (max-width: 380px) {
+  .likert-row--7 .likert-circle { width: 32px; height: 32px; font-size: 0.78rem; }
+  .likert-row--8 .likert-circle { width: 33px; height: 33px; font-size: 0.78rem; }
+  .likert-row { gap: 3px; }
 }
