@@ -47,6 +47,13 @@ let timerInterval = null;
 let timerDone = false;
 let maxReached = -1; // -1 = nessuna domanda ancora vista
 
+function saveProgress() {
+  const s = JSON.parse(localStorage.getItem('questionario_session') || '{}');
+  s.status = 'ecr'; s.lastPage = 'ecr.html';
+  s.ecrAnswers = [...answers]; s.ecrCurrentQ = currentQ;
+  localStorage.setItem('questionario_session', JSON.stringify(s));
+}
+
 const progressBar     = document.getElementById("progress-bar");
 const progressLabel   = document.getElementById("progress-label");
 const questionNum     = document.getElementById("question-num");
@@ -117,6 +124,7 @@ backBtn.addEventListener("click", () => {
   const selected = [...radios].find(r => r.checked);
   if (selected) answers[currentQ] = Number(selected.value);
   currentQ--;
+  saveProgress();
   renderQuestion(currentQ);
 });
 
@@ -126,6 +134,7 @@ nextBtn.addEventListener("click", () => {
   answers[currentQ] = Number(selected.value);
   if (currentQ < QUESTIONS.length - 1) {
     currentQ++;
+    saveProgress();
     renderQuestion(currentQ);
   } else {
     showRelationPanel();
@@ -193,7 +202,24 @@ async function submitAll() {
   sessionStorage.setItem("ecrData", JSON.stringify(ecrData));
   try { await patchDoc({ ...ecrData, status: "ecr" }); }
   catch (ex) { console.warn("Firestore patch failed, continuing:", ex.message); }
+  // Aggiorna sessione localStorage
+  const _s = JSON.parse(localStorage.getItem('questionario_session') || '{}');
+  _s.status = 'pbs'; _s.lastPage = 'pbs.html';
+  delete _s.ecrAnswers; delete _s.ecrCurrentQ;
+  localStorage.setItem('questionario_session', JSON.stringify(_s));
   window.location.href = "pbs.html";
 }
 
-renderQuestion(0);
+// Ripristino sessione
+const _eSess = JSON.parse(localStorage.getItem('questionario_session') || 'null');
+if (_eSess?.docId && !sessionStorage.getItem('firestoreDocId')) {
+  sessionStorage.setItem('firestoreDocId', _eSess.docId);
+}
+if (_eSess?.ecrAnswers?.length) {
+  _eSess.ecrAnswers.forEach((v, i) => { if (v !== null) answers[i] = v; });
+}
+if (typeof _eSess?.ecrCurrentQ === 'number' && _eSess.ecrCurrentQ > 0) {
+  currentQ = _eSess.ecrCurrentQ;
+  maxReached = _eSess.ecrCurrentQ;
+}
+renderQuestion(currentQ);

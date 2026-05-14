@@ -79,6 +79,13 @@ let timerInterval = null;
 let timerDone = false;
 let maxReached = -1; // -1 = nessuna domanda ancora vista
 
+function saveProgress() {
+  const s = JSON.parse(localStorage.getItem('questionario_session') || '{}');
+  s.status = 'pbs'; s.lastPage = 'pbs.html';
+  s.pbsAnswers = [...answers]; s.pbsCurrentQ = currentQ;
+  localStorage.setItem('questionario_session', JSON.stringify(s));
+}
+
 const progressBar  = document.getElementById("progress-bar");
 const progressLabel = document.getElementById("progress-label");
 const questionNum  = document.getElementById("question-num");
@@ -145,6 +152,7 @@ backBtn.addEventListener("click", () => {
   const selected = [...radios].find(r => r.checked);
   if (selected) answers[currentQ] = Number(selected.value);
   currentQ--;
+  saveProgress();
   renderQuestion(currentQ);
 });
 
@@ -154,6 +162,7 @@ nextBtn.addEventListener("click", () => {
   answers[currentQ] = Number(selected.value);
   if (currentQ < QUESTIONS.length - 1) {
     currentQ++;
+    saveProgress();
     renderQuestion(currentQ);
   } else {
     submitAll();
@@ -175,6 +184,7 @@ async function submitAll() {
 
   try {
     await patchDoc(pbsData);
+    localStorage.removeItem('questionario_session'); // sessione completata, pulizia
     sessionStorage.removeItem("demographicsData");
     sessionStorage.removeItem("domandeAperteData");
     sessionStorage.removeItem("igrsData");
@@ -193,4 +203,16 @@ async function submitAll() {
   }
 }
 
-renderQuestion(0);
+// Ripristino sessione
+const _pSess = JSON.parse(localStorage.getItem('questionario_session') || 'null');
+if (_pSess?.docId && !sessionStorage.getItem('firestoreDocId')) {
+  sessionStorage.setItem('firestoreDocId', _pSess.docId);
+}
+if (_pSess?.pbsAnswers?.length) {
+  _pSess.pbsAnswers.forEach((v, i) => { if (v !== null) answers[i] = v; });
+}
+if (typeof _pSess?.pbsCurrentQ === 'number' && _pSess.pbsCurrentQ > 0) {
+  currentQ = _pSess.pbsCurrentQ;
+  maxReached = _pSess.pbsCurrentQ;
+}
+renderQuestion(currentQ);

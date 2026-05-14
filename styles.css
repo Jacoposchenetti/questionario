@@ -455,6 +455,20 @@ button:disabled { opacity: 0.65; cursor: not-allowed; }
 .scale-legend--pbs { justify-content: space-between; }
 .scale-legend--pbs .scale-legend-item { flex: 0 0 auto; }
 
+/* ── Resume banner ── */
+.resume-banner {
+  margin-top: 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(22, 33, 36, 0.07);
+  animation: fadeUp 600ms ease-out both;
+}
+.resume-text { margin: 0 0 16px; font-size: 1.05rem; line-height: 1.5; }
+.resume-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.resume-actions .btn-secondary { font-size: 0.9rem; padding: 10px 16px; }
+
 /* ── Mobile ── */
 @media (max-width: 600px) {
   .page { margin-top: 20px; margin-bottom: 40px; width: 94vw; }

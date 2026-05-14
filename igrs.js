@@ -31,6 +31,13 @@ let timerInterval = null;
 let timerDone = false;
 let maxReached = -1; // indice massimo raggiunto; -1 = nessuna domanda ancora vista
 
+function saveProgress() {
+  const s = JSON.parse(localStorage.getItem('questionario_session') || '{}');
+  s.status = 'igrs'; s.lastPage = 'igrs.html';
+  s.igrsAnswers = [...answers]; s.igrsCurrentQ = currentQ;
+  localStorage.setItem('questionario_session', JSON.stringify(s));
+}
+
 const progressBar  = document.getElementById("progress-bar");
 const progressLabel = document.getElementById("progress-label");
 const questionNum  = document.getElementById("question-num");
@@ -102,6 +109,7 @@ backBtn.addEventListener("click", () => {
   const selected = [...radios].find(r => r.checked);
   if (selected) answers[currentQ] = Number(selected.value);
   currentQ--;
+  saveProgress();
   renderQuestion(currentQ);
 });
 
@@ -111,6 +119,7 @@ nextBtn.addEventListener("click", () => {
   answers[currentQ] = Number(selected.value);
   if (currentQ < QUESTIONS.length - 1) {
     currentQ++;
+    saveProgress();
     renderQuestion(currentQ);
   } else {
     submitAll();
@@ -124,7 +133,24 @@ async function submitAll() {
   sessionStorage.setItem("igrsData", JSON.stringify(igrsData));
   try { await patchDoc({ ...igrsData, status: "igrs" }); }
   catch (ex) { console.warn("Firestore patch failed, continuing:", ex.message); }
+  // Aggiorna sessione localStorage
+  const _s = JSON.parse(localStorage.getItem('questionario_session') || '{}');
+  _s.status = 'ecr'; _s.lastPage = 'ecr.html';
+  delete _s.igrsAnswers; delete _s.igrsCurrentQ;
+  localStorage.setItem('questionario_session', JSON.stringify(_s));
   window.location.href = "ecr.html";
 }
 
-renderQuestion(0);
+// Ripristino sessione
+const _iSess = JSON.parse(localStorage.getItem('questionario_session') || 'null');
+if (_iSess?.docId && !sessionStorage.getItem('firestoreDocId')) {
+  sessionStorage.setItem('firestoreDocId', _iSess.docId);
+}
+if (_iSess?.igrsAnswers?.length) {
+  _iSess.igrsAnswers.forEach((v, i) => { if (v !== null) answers[i] = v; });
+}
+if (typeof _iSess?.igrsCurrentQ === 'number' && _iSess.igrsCurrentQ > 0) {
+  currentQ = _iSess.igrsCurrentQ;
+  maxReached = _iSess.igrsCurrentQ;
+}
+renderQuestion(currentQ);

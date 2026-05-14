@@ -1,5 +1,35 @@
 ﻿// Dati demografici salvati in sessionStorage; il salvataggio su Firestore avviene alla fine di tutti i questionari.
 
+// ── Resume session check ──────────────────────────────────────────────────
+(function checkResume() {
+  const sess = JSON.parse(localStorage.getItem('questionario_session') || 'null');
+  if (!sess?.docId || sess.status === 'completed') return;
+  const banner = document.getElementById('resume-banner');
+  if (!banner) return;
+  // Hide form panels + progress UI, show banner
+  document.querySelectorAll('.step-panel').forEach(p => { p.hidden = true; });
+  const stepper = document.querySelector('.stepper');
+  const progressWrap = document.querySelector('.progress-wrap');
+  const progressLbl = document.getElementById('progress-label');
+  if (stepper) stepper.style.display = 'none';
+  if (progressWrap) progressWrap.style.display = 'none';
+  if (progressLbl) progressLbl.style.display = 'none';
+  banner.hidden = false;
+
+  document.getElementById('btn-resume').addEventListener('click', () => {
+    sessionStorage.setItem('firestoreDocId', sess.docId);
+    window.location.href = sess.lastPage;
+  });
+  document.getElementById('btn-restart').addEventListener('click', () => {
+    localStorage.removeItem('questionario_session');
+    banner.hidden = true;
+    document.querySelectorAll('.step-panel').forEach((p, i) => { p.hidden = i !== 0; });
+    if (stepper) stepper.style.display = '';
+    if (progressWrap) progressWrap.style.display = '';
+    if (progressLbl) progressLbl.style.display = '';
+  });
+})();
+
 // --- Step navigation ---------------------------------------------------------
 
 const TOTAL_STEPS   = 4;
@@ -187,6 +217,17 @@ document.getElementById("main-form").addEventListener("submit", async (e) => {
 
   try { await createDoc(payload); }
   catch (ex) { console.warn("Firestore create failed, continuing:", ex.message); }
+
+  // Salva sessione in localStorage per permettere il ripristino in caso di uscita
+  const _docId = sessionStorage.getItem('firestoreDocId');
+  if (_docId) {
+    localStorage.setItem('questionario_session', JSON.stringify({
+      docId: _docId,
+      status: 'domande-aperte',
+      lastPage: 'domande-aperte.html',
+      timestamp: new Date().toISOString()
+    }));
+  }
 
   sessionStorage.setItem("demographicsData", JSON.stringify(payload));
   window.location.href = "domande-aperte.html";

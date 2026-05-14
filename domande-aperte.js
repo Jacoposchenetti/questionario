@@ -12,6 +12,17 @@ const errGlobal = document.getElementById("err-global");
 const btnAvanti = document.getElementById("btn-avanti");
 const btnBack   = document.getElementById("btn-back");
 
+// ── Ripristino sessione ───────────────────────────────────────────────────
+(function restoreSession() {
+  const sess = JSON.parse(localStorage.getItem('questionario_session') || 'null');
+  if (!sess?.docId) return;
+  if (!sessionStorage.getItem('firestoreDocId')) {
+    sessionStorage.setItem('firestoreDocId', sess.docId);
+  }
+  if (sess.rapportoPadre) { padreTa.value = sess.rapportoPadre; updateCounter(padreTa, cntPadre); }
+  if (sess.rapportoMadre) { madreTa.value = sess.rapportoMadre; updateCounter(madreTa, cntMadre); }
+})();
+
 function updateCounter(ta, cntEl) {
   const n = ta.value.trim().length;
   const ok = n >= MIN_CHARS;
@@ -22,10 +33,16 @@ function updateCounter(ta, cntEl) {
 padreTa.addEventListener("input", () => {
   updateCounter(padreTa, cntPadre);
   errPadre.textContent = "";
+  const _s = JSON.parse(localStorage.getItem('questionario_session') || '{}');
+  _s.rapportoPadre = padreTa.value;
+  localStorage.setItem('questionario_session', JSON.stringify(_s));
 });
 madreTa.addEventListener("input", () => {
   updateCounter(madreTa, cntMadre);
   errMadre.textContent = "";
+  const _s = JSON.parse(localStorage.getItem('questionario_session') || '{}');
+  _s.rapportoMadre = madreTa.value;
+  localStorage.setItem('questionario_session', JSON.stringify(_s));
 });
 
 btnBack.addEventListener("click", () => {
@@ -67,6 +84,12 @@ btnAvanti.addEventListener("click", async () => {
   btnAvanti.textContent = "Salvataggio...";
   try { await patchDoc(data); }
   catch (ex) { console.warn("Firestore patch failed, continuing:", ex.message); }
+
+  // Aggiorna sessione localStorage
+  const _s = JSON.parse(localStorage.getItem('questionario_session') || '{}');
+  _s.status = 'igrs'; _s.lastPage = 'igrs.html';
+  delete _s.rapportoPadre; delete _s.rapportoMadre;
+  localStorage.setItem('questionario_session', JSON.stringify(_s));
 
   window.location.href = "igrs.html";
 });
