@@ -155,7 +155,22 @@
                border-top-color: var(--accent); border-radius: 50%;
                animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Sheets config modal ── */
+    .config-modal { max-width: 500px; }
+    .config-modal p { font-size: 0.84rem; color: var(--ink-soft); margin-bottom: 14px; line-height: 1.55; }
+    .config-modal code { background: var(--accent-light); padding: 1px 5px; border-radius: 4px; font-size: 0.82rem; }
+    .config-modal input { width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 10px 12px; font-size: 0.9rem; font-family: inherit; outline: none;
+      transition: border-color 200ms; margin: 6px 0 16px; }
+    .config-modal input:focus { border-color: var(--accent); }
+    .config-modal label { font-size: 0.85rem; font-weight: 600; color: var(--ink-soft); }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 8px;
+      font-size: 0.85rem; font-weight: 500; opacity: 0; transition: all 0.3s ease; z-index: 200; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
+  <script src="https://accounts.google.com/gsi/client" async></script>
 </head>
 <body>
 
@@ -179,6 +194,7 @@
     <div class="top-bar-actions">
       <span id="status"></span>
       <button class="btn btn-outline" id="btn-refresh">↻ Aggiorna</button>
+      <button class="btn btn-outline" id="btn-sheets" style="border-color:#0f9d58;color:#0f9d58">📊 Google Sheets</button>
       <button class="btn btn-primary" id="btn-csv">⬇ Esporta CSV</button>
       <button class="btn btn-danger" id="btn-logout">Esci</button>
     </div>
@@ -250,6 +266,29 @@
     <div id="modal-body"></div>
   </div>
 </div>
+
+<!-- SHEETS CONFIG MODAL -->
+<div class="modal-overlay" id="sheets-config-overlay">
+  <div class="modal config-modal">
+    <button class="modal-close" id="sheets-config-close">✕</button>
+    <h2>📊 Configura Google Sheets</h2>
+    <p>
+      Per esportare direttamente in Google Sheets serve un <strong>OAuth 2.0 Client ID</strong> di Google.
+      Nella <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--accent)">GCP Console</a>:
+      <br>1. Abilita l'<strong>API Google Sheets</strong>
+      <br>2. Crea credenziali → <strong>ID client OAuth 2.0</strong> → Applicazione web
+      <br>3. Aggiungi <code>https://jacoposchenetti.github.io</code> come origine JavaScript autorizzata
+      <br>4. Copia il Client ID qui sotto.
+    </p>
+    <label for="sheets-client-id-input">Client ID Google OAuth 2.0</label>
+    <input type="text" id="sheets-client-id-input" placeholder="xxxxxxxx.apps.googleusercontent.com" />
+    <button class="btn btn-primary" id="sheets-save-config">Salva e connetti</button>
+    <button class="btn btn-outline" id="sheets-reset-config" style="margin-left:8px;display:none">Reimposta</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
@@ -398,13 +437,28 @@
       education: get("education") ?? "",
       occupation: get("occupation") ?? "",
       therapy: get("therapy") ?? "",
+      therapyDuration: get("therapyDuration") ?? "",
       sexualOrientation: get("sexualOrientation") ?? "",
       birthPlace: get("birthPlace") ?? "",
       grewUpPlace: get("grewUpPlace") ?? "",
       studyPlace: get("studyPlace") ?? "",
+      motherEducation: get("motherEducation") ?? "",
+      fatherEducation: get("fatherEducation") ?? "",
+      studyField: get("studyField") ?? "",
       relazione: get("relazione") ?? "",
       relazioneDurata: get("relazioneDurata") ?? "",
       convivenza: get("convivenza") ?? "",
+      ethnicity: get("ethnicity") ?? "",
+      socioeconomicStatus: get("socioeconomicStatus") ?? "",
+      physicalDisease: get("physicalDisease"),
+      psychotropicDisorders: get("psychotropicDisorders"),
+      substanceAbuse: get("substanceAbuse"),
+      childhoodAbuse: get("childhoodAbuse"),
+      childhoodNeglect: get("childhoodNeglect"),
+      familyProblems: get("familyProblems"),
+      caregivingRole: get("caregivingRole"),
+      familySeparationDistress: get("familySeparationDistress"),
+      familyCaregivingDifficulty: get("familyCaregivingDifficulty"),
       status: get("status") ?? "",
       igrsSG, igrsSD, igrsOR, igrsSH, igrsBG, ecrAnx, ecrAvo, pbsTotal,
       createdAt,
@@ -501,15 +555,21 @@
         ${scoreCell(d.ecrAnx, 7)}
         ${scoreCell(d.ecrAvo, 7)}
         ${scoreCell(d.pbsTotal, 413)}
-        <td><button class="btn btn-outline" style="padding:4px 10px;font-size:0.75rem" data-id="${d.id}">Dettaglio</button></td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-outline" style="padding:4px 10px;font-size:0.75rem" data-detail="${d.id}">Dettaglio</button>
+          <button class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;margin-left:4px" data-delete="${d.id}">Elimina</button>
+        </td>
       </tr>
     `).join("");
 
-    tbody.querySelectorAll("[data-id]").forEach(btn => {
+    tbody.querySelectorAll("[data-detail]").forEach(btn => {
       btn.addEventListener("click", () => {
-        const doc = docs.find(d => d.id === btn.dataset.id);
+        const doc = docs.find(d => d.id === btn.dataset.detail);
         if (doc) openModal(doc);
       });
+    });
+    tbody.querySelectorAll("[data-delete]").forEach(btn => {
+      btn.addEventListener("click", () => deleteDoc(btn.dataset.delete));
     });
   }
 
@@ -576,7 +636,13 @@
     // intestazioni
     const demoCols = ["id","createdAt","nome","cognome","email","age","gender",
                       "education","occupation","birthPlace","grewUpPlace","studyPlace",
-                      "therapy","sexualOrientation","relazione","relazioneDurata","convivenza"];
+                      "motherEducation","fatherEducation","studyField",
+                      "therapy","therapyDuration","sexualOrientation",
+                      "relazione","relazioneDurata","convivenza",
+                      "ethnicity","socioeconomicStatus",
+                      "physicalDisease","psychotropicDisorders","substanceAbuse",
+                      "childhoodAbuse","childhoodNeglect","familyProblems",
+                      "caregivingRole","familySeparationDistress","familyCaregivingDifficulty"];
     const igrsCols = Array.from({length:20}, (_, i) => "igrs_q"+(i+1));
     const ecrCols  = Array.from({length:36}, (_, i) => "ecr_q"+(i+1));
     const pbsCols  = Array.from({length:59}, (_, i) => "pbs_q"+(i+1));
@@ -606,6 +672,153 @@
     const a = document.createElement("a");
     a.href = url; a.download = "risposte_questionario.csv"; a.click();
     URL.revokeObjectURL(url);
+  });
+
+  // ── Delete doc ────────────────────────────────────────────────────────────
+  async function deleteDoc(id) {
+    if (!confirm("Eliminare definitivamente questo soggetto? L'operazione è irreversibile.")) return;
+    try {
+      if (auth.currentUser) idToken = await auth.currentUser.getIdToken();
+      const res = await fetch(`${FIRESTORE_BASE}/responses/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${idToken}` }
+      });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      allDocs = allDocs.filter(d => (d.name?.split("/").pop() ?? "") !== id);
+      renderAll();
+      showToast("Soggetto eliminato.");
+    } catch(e) {
+      alert("Errore durante l'eliminazione: " + e.message);
+    }
+  }
+
+  // ── Toast helper ──────────────────────────────────────────────────────────
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 3000);
+  }
+
+  // ── Google Sheets sync ────────────────────────────────────────────────────
+  const SHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
+  let gTokenClient = null;
+
+  function buildSheetRows() {
+    const docs = filtered();
+    if (!docs.length) return null;
+    const demoCols = ["id","createdAt","nome","cognome","email","age","gender",
+                      "education","occupation","birthPlace","grewUpPlace","studyPlace",
+                      "motherEducation","fatherEducation","studyField",
+                      "therapy","therapyDuration","sexualOrientation",
+                      "relazione","relazioneDurata","convivenza",
+                      "ethnicity","socioeconomicStatus",
+                      "physicalDisease","psychotropicDisorders","substanceAbuse",
+                      "childhoodAbuse","childhoodNeglect","familyProblems",
+                      "caregivingRole","familySeparationDistress","familyCaregivingDifficulty","status"];
+    const scoreCols = ["igrsSG","igrsSD","igrsOR","igrsSH","igrsBG","ecrAnx","ecrAvo","pbsTotal"];
+    const igrsCols  = Array.from({length:20}, (_, i) => "igrs_q"+(i+1));
+    const ecrCols   = Array.from({length:36}, (_, i) => "ecr_q"+(i+1));
+    const pbsCols   = Array.from({length:59}, (_, i) => "pbs_q"+(i+1));
+    const allCols   = [...demoCols, ...scoreCols, ...igrsCols, ...ecrCols, ...pbsCols];
+
+    const rows = [allCols];
+    for (const d of docs) {
+      rows.push(allCols.map(col => {
+        if (col.startsWith("igrs_q") || col.startsWith("ecr_q") || col.startsWith("pbs_q")) {
+          const v = fval(d.raw, col);
+          return v !== null ? Number(v) : "";
+        }
+        const v = d[col] ?? "";
+        return v === null ? "" : v;
+      }));
+    }
+    return rows;
+  }
+
+  async function syncToGoogleSheets(token) {
+    setStatus("loading");
+    const rows = buildSheetRows();
+    if (!rows) { setStatus("ok", allDocs.length + " soggetti caricati"); showToast("Nessun dato da esportare."); return; }
+
+    const createRes = await fetch("https://sheets.googleapis.com/v4/spreadsheets", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ properties: { title: `Questionario – ${new Date().toLocaleDateString("it-IT")}` },
+                             sheets: [{ properties: { title: "Dati" } }] })
+    });
+    if (!createRes.ok) throw new Error("Creazione foglio fallita (" + createRes.status + ")");
+    const sheet = await createRes.json();
+    const sheetId = sheet.spreadsheetId;
+
+    const updateRes = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Dati!A1?valueInputOption=RAW`,
+      {
+        method: "PUT",
+        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ values: rows })
+      }
+    );
+    if (!updateRes.ok) throw new Error("Scrittura dati fallita (" + updateRes.status + ")");
+
+    setStatus("ok", allDocs.length + " soggetti caricati");
+    showToast("Foglio creato! Apertura in corso…");
+    window.open(sheet.spreadsheetUrl, "_blank");
+  }
+
+  function initGoogleAuth(clientId) {
+    gTokenClient = window.google.accounts.oauth2.initTokenClient({
+      client_id: clientId,
+      scope: SHEETS_SCOPE,
+      callback: async (resp) => {
+        if (resp.error) { showToast("Errore OAuth: " + resp.error); setStatus("ok", allDocs.length + " soggetti caricati"); return; }
+        try { await syncToGoogleSheets(resp.access_token); }
+        catch(e) { setStatus("err", "Errore Sheets: " + e.message); alert("Errore Google Sheets: " + e.message); }
+      }
+    });
+  }
+
+  document.getElementById("btn-sheets").addEventListener("click", () => {
+    const clientId = localStorage.getItem("gsheets_client_id");
+    if (!clientId) {
+      document.getElementById("sheets-config-overlay").classList.add("open");
+      return;
+    }
+    if (!gTokenClient) {
+      if (!window.google?.accounts?.oauth2) { showToast("Libreria Google non ancora caricata. Riprova tra un secondo."); return; }
+      initGoogleAuth(clientId);
+    }
+    gTokenClient.requestAccessToken();
+  });
+
+  document.getElementById("sheets-save-config").addEventListener("click", () => {
+    const val = document.getElementById("sheets-client-id-input").value.trim();
+    if (!val) return;
+    localStorage.setItem("gsheets_client_id", val);
+    document.getElementById("sheets-config-overlay").classList.remove("open");
+    showToast("Client ID salvato. Clicca nuovamente Google Sheets per sincronizzare.");
+  });
+
+  document.getElementById("sheets-config-close").addEventListener("click", () => {
+    document.getElementById("sheets-config-overlay").classList.remove("open");
+  });
+
+  // Pre-fill config input if a client ID is already saved
+  const savedClientId = localStorage.getItem("gsheets_client_id");
+  if (savedClientId) {
+    document.getElementById("sheets-client-id-input").value = savedClientId;
+    document.getElementById("sheets-reset-config").style.display = "inline-block";
+  }
+  document.getElementById("sheets-reset-config").addEventListener("click", () => {
+    localStorage.removeItem("gsheets_client_id");
+    gTokenClient = null;
+    document.getElementById("sheets-client-id-input").value = "";
+    document.getElementById("sheets-reset-config").style.display = "none";
+    showToast("Configurazione Google Sheets rimossa.");
+    document.getElementById("sheets-config-overlay").classList.remove("open");
+  });
+  document.getElementById("sheets-config-overlay").addEventListener("click", e => {
+    if (e.target === e.currentTarget) document.getElementById("sheets-config-overlay").classList.remove("open");
   });
 
   // ── Status helper ─────────────────────────────────────────────────────────
