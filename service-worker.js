@@ -1,4 +1,4 @@
-const CACHE_NAME = "tesi-clinica-v1";
+const CACHE_NAME = "tesi-clinica-v2";
 const OFFLINE_FALLBACK = "/questionario/index.html";
 
 const APP_SHELL = [
@@ -21,8 +21,7 @@ const APP_SHELL = [
   "/questionario/speech.js",
   "/questionario/firebase-config.js",
   "/questionario/icons/icon-192.png",
-  "/questionario/icons/icon-512.png",
-  "/questionario/manifest.webmanifest"
+  "/questionario/icons/icon-512.png"
 ];
 
 self.addEventListener("install", (event) => {
@@ -65,6 +64,11 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (url.origin === self.location.origin) {
+    if (url.pathname.endsWith("/manifest.webmanifest")) {
+      event.respondWith(fetch(req, { cache: "no-store" }));
+      return;
+    }
+
     event.respondWith(
       caches.match(req).then((cached) => {
         if (cached) return cached;
