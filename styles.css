@@ -283,6 +283,8 @@ input:focus, select:focus {
   font-size: 0.92rem;
 }
 .consent input { margin-top: 3px; flex-shrink: 0; }
+.consent-link { color: var(--accent); text-underline-offset: 3px; }
+.consent-link:hover { opacity: 0.8; }
 
 /* ── Actions ── */
 .actions { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
