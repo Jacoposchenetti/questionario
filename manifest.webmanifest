@@ -1,14 +1,28 @@
 {
-  "name": "Raccontati - Questionario di ricerca",
-  "short_name": "Raccontati",
-  "description": "Questionario clinico con monitoraggio compilazioni da area admin.",
-  "start_url": "/questionario/index.html",
+  "name": "Raccontati - Area Admin",
+  "short_name": "Raccontati Admin",
+  "description": "Accesso rapido all'area admin per monitorare le compilazioni.",
+  "start_url": "/questionario/admin.html",
   "scope": "/questionario/",
   "display": "standalone",
   "background_color": "#f4f7f1",
   "theme_color": "#1f7a61",
   "lang": "it-IT",
   "orientation": "portrait-primary",
+  "shortcuts": [
+    {
+      "name": "Area admin",
+      "short_name": "Admin",
+      "description": "Apri la dashboard delle compilazioni",
+      "url": "/questionario/admin.html"
+    },
+    {
+      "name": "Questionario",
+      "short_name": "Questionario",
+      "description": "Apri il questionario per i partecipanti",
+      "url": "/questionario/index.html"
+    }
+  ],
   "icons": [
     {
       "src": "icons/icon-192.png",
