@@ -1,7 +1,34 @@
 // Shared Firestore REST utilities
+import { firebaseConfig } from "./firebase-config.js";
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+
 export const FIREBASE_API_KEY = "AIzaSyACw47qEsgsMCC2tUlbPEu81f-1ENRB0-U";
 export const FIRESTORE_BASE   = "https://firestore.googleapis.com/v1/projects/questionario-9b487/databases/(default)/documents";
 const COLLECTION = "responses";
+
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+let anonymousAuthPromise = null;
+
+async function ensureAnonymousAuth() {
+  if (auth.currentUser) return auth.currentUser;
+  if (!anonymousAuthPromise) {
+    anonymousAuthPromise = signInAnonymously(auth)
+      .then(({ user }) => user)
+      .catch((error) => {
+        anonymousAuthPromise = null;
+        throw error;
+      });
+  }
+  return anonymousAuthPromise;
+}
+
+async function authHeaders() {
+  const user = await ensureAnonymousAuth();
+  const token = await user.getIdToken();
+  return { Authorization: `Bearer ${token}` };
+}
 
 export function toFSVal(v) {
   if (v === null || v === undefined) return { nullValue: null };
@@ -22,9 +49,10 @@ function buildFields(obj) {
  */
 export async function createDoc(data) {
   const url = `${FIRESTORE_BASE}/${COLLECTION}?key=${FIREBASE_API_KEY}`;
+  const headers = { "Content-Type": "application/json", ...(await authHeaders()) };
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({ fields: buildFields(data) }),
   });
   if (!res.ok) {
@@ -55,9 +83,10 @@ export async function patchDoc(data) {
     .map(k => `updateMask.fieldPaths=${encodeURIComponent(k)}`)
     .join("&");
   const url = `${FIRESTORE_BASE}/${COLLECTION}/${docId}?key=${FIREBASE_API_KEY}&${mask}`;
+  const headers = { "Content-Type": "application/json", ...(await authHeaders()) };
   const res = await fetch(url, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({ fields }),
   });
   if (!res.ok) {

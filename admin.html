@@ -357,6 +357,10 @@
   const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   let idToken = null;
+  const ADMIN_EMAILS = new Set([
+    "schenetti.2269755@studenti.uniroma1.it",
+    "francesco.gazzillo@uniroma1.it"
+  ]);
 
   // ── Login ──────────────────────────────────────────────────────────────────
   const loginScreen = document.getElementById("login-screen");
@@ -375,12 +379,21 @@
     btnLogin.textContent = "Accesso…";
     try {
       const cred = await signInWithEmailAndPassword(auth, emailInput.value.trim(), pwdInput.value);
+      const tokenResult = await cred.user.getIdTokenResult(true);
+      const email = (cred.user.email || "").toLowerCase();
+      const authorized = tokenResult.claims.admin === true || ADMIN_EMAILS.has(email);
+      if (!authorized) {
+        await signOut(auth);
+        throw new Error("not-authorized");
+      }
       idToken = await cred.user.getIdToken();
       loginScreen.style.display = "none";
       dashboard.style.display = "block";
       loadData();
-    } catch {
-      loginErr.textContent = "Credenziali non valide.";
+    } catch (error) {
+      loginErr.textContent = error?.message === "not-authorized"
+        ? "Questo account non ha i permessi di amministrazione."
+        : "Credenziali non valide.";
       pwdInput.value = "";
       pwdInput.focus();
     } finally {
