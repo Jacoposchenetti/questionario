@@ -18,6 +18,47 @@
       .section-title { font-size: 1rem; font-weight: 600; margin: 28px 0 12px; color: var(--ink); }
       .back-btn-wrap { margin-bottom: 28px; }
       .page-ref { color: var(--ink-soft); font-size: 0.82rem; margin-bottom: 20px; }
+
+      @media (max-width: 600px) {
+        .info-table,
+        .info-table tbody,
+        .info-table tr,
+        .info-table th,
+        .info-table td {
+          display: block;
+          width: 100%;
+        }
+
+        .info-table {
+          border-collapse: separate;
+          margin-bottom: 16px;
+        }
+
+        .info-table tr {
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          margin-bottom: 10px;
+          overflow: hidden;
+          background: #fff;
+        }
+
+        .info-table th,
+        .info-table td {
+          border: 0;
+          padding: 10px 12px;
+          line-height: 1.55;
+        }
+
+        .info-table th {
+          background: #f7f5f2;
+          font-size: 0.85rem;
+        }
+
+        .info-table td {
+          border-top: 1px solid var(--border);
+          font-size: 0.9rem;
+        }
+      }
     </style>
   </head>
   <body>
